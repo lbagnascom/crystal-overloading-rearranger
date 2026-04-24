@@ -123,7 +123,7 @@ parseClass :: Parser Class
 parseClass = do
   _ <- symbol "class"
   name <- parseCapitalizedName
-  super <- option "Object" (symbol "<" *> parseCapitalizedName)
+  super <- option "Reference" (symbol "<" *> parseCapitalizedName)
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, superClass = super, methods = defs}
 
