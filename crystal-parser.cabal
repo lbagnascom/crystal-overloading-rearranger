@@ -25,6 +25,7 @@ library
     , hspec-megaparsec   ^>=2.2.1
     , string-interpolate ^>=0.3.4
     , directory          ^>=1.3.10
+    , process            ^>=1.6.28
 
 executable crystal-parser
   import:           warnings
@@ -42,6 +43,7 @@ executable crystal-parser
     , text               ^>=2.1.4
     , string-interpolate ^>=0.3.4
     , directory          ^>=1.3.10
+    , process            ^>=1.6.28
     , filepath           ^>=1.5.5
 
 test-suite crystal-parser-test
