@@ -7,7 +7,7 @@ import Data.Maybe (fromMaybe)
 import Parser
 
 printProgram :: CrystalProgram -> String
-printProgram stmt = intercalate "\n" $ concatMap (printStmt 0) stmt
+printProgram stmts = intercalate "\n" $ intercalate [""] $ map (printStmt 0) stmts
 
 printStmt :: Int -> Stmt -> [String]
 printStmt n (ClassStmt c) = printClass n c
@@ -17,8 +17,8 @@ printStmt n (UndiscoveredStmt s) = printUndiscovered n s
 printClass :: Int -> Class -> [String]
 printClass n (Class {className = name, superClass = super, methods = defs}) =
   (indentation ++ "class " ++ name ++ " < " ++ super)
-    : concatMap (printFunction (n + 2)) defs
-    ++ [indentation ++ "end\n"]
+    : (intercalate [""] $ map (printFunction (n + 2)) defs)
+    ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
 
@@ -26,7 +26,7 @@ printFunction :: Int -> Function -> [String]
 printFunction n (Function {funName = name, funArgs = args, funFreeVar = freeVar, funBody = body}) =
   (indentation ++ "def " ++ name ++ "(" ++ (intercalate ", " $ map printFunctionArg args) ++ ")" ++ maybeFreeVar)
     : map (("  " ++ indentation) ++) body
-    ++ [indentation ++ "end\n"]
+    ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
     maybeFreeVar = (fromMaybe "" ((" forall " ++) <$> freeVar))
