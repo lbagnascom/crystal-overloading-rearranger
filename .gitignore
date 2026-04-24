@@ -1,3 +1,5 @@
 .direnv/
 dist-newstyle/
-output/
+
+samples/
+!samples/*.cr
