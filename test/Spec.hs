@@ -5,9 +5,22 @@ module Spec where
 
 import Data.String.Interpolate (__i)
 import Parser
-import Test.Hspec
-import Test.Hspec.Megaparsec
-import Text.Megaparsec
+  ( Class (..),
+    Function (..),
+    FunctionArg (..),
+    Literal (..),
+    Stmt (..),
+    parseBool,
+    parseClass,
+    parseFunction,
+    parseFunctionArg,
+    parseInteger,
+    parseProgram,
+    parseString,
+  )
+import Test.Hspec (describe, hspec, it)
+import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
+import Text.Megaparsec (parse)
 
 main :: IO ()
 main = hspec $ do
@@ -350,7 +363,11 @@ main = hspec $ do
                                 [ Function
                                     { funName = "foo",
                                       funArgs =
-                                        [ FunctionArg {argName = "x", argType = (Just "Int32"), argDefaultValue = Nothing}
+                                        [ FunctionArg
+                                            { argName = "x",
+                                              argType = Just "Int32",
+                                              argDefaultValue = Nothing
+                                            }
                                         ],
                                       funFreeVar = Nothing,
                                       funBody = ["x + 34"],
