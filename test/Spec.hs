@@ -192,7 +192,7 @@ main = hspec $ do
   describe "parseClasses" $ do
     it "parse an empty class" $
       parse parseClass "" "class A end"
-        `shouldParse` Class {className = "A", superClass = "Object", methods = []}
+        `shouldParse` Class {className = "A", superClass = "Reference", methods = []}
 
     it "parse a class with one method" $
       parse
@@ -207,7 +207,7 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Object",
+            superClass = "Reference",
             methods =
               [ Function {funName = "foo", funArgs = [], funFreeVar = Nothing, funBody = ["1"], funAnnotation = Nothing}
               ]
@@ -251,7 +251,7 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Object",
+            superClass = "Reference",
             methods =
               [ Function
                   { funName = "foo",
@@ -297,7 +297,7 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Object",
+            superClass = "Reference",
             methods =
               [ Function
                   { funName = "foo",
@@ -331,7 +331,7 @@ main = hspec $ do
         `shouldParse` [ ClassStmt $
                           Class
                             { className = "A",
-                              superClass = "Object",
+                              superClass = "Reference",
                               methods =
                                 [ Function
                                     { funName = "foo",
@@ -378,7 +378,7 @@ main = hspec $ do
         `shouldParse` [ ClassStmt $
                           Class
                             "A"
-                            "Object"
+                            "Reference"
                             [ Function "foo" [] Nothing ["1"] Nothing
                             ],
                         FunctionStmt $
