@@ -51,7 +51,8 @@ runFiles :: [String] -> IO [ProcessResult]
 runFiles fileNames = mapM runFile fileNames
   where
     runFile fileName = do
-      (_, _, _, ph) <- createProcess (shell $ "crystal run " ++ fileName)
+      (_, _, _, ph) <-
+        createProcess (shell $ "crystal run " ++ fileName) {std_out = CreatePipe, std_err = CreatePipe}
       exitCode <- waitForProcess ph
       pure $ ProcessResult {prExitCode = exitCode, prStderr = "", prStdout = ""}
 

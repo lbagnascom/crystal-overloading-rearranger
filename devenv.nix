@@ -1,13 +1,18 @@
 { pkgs, ... }:
 
 {
-  cachix.enable = false;
+  languages.haskell = {
+    enable = true;
+    cabal.enable = true;
+    lsp.enable = true;
+  };
 
-  packages = with pkgs; [
-    crystal
-    ghc
-    ghcid
-    haskell-language-server
-    cabal-install
+  languages.crystal = {
+    enable = true;
+    lsp.enable = true;
+  };
+
+  packages = [
+    pkgs.ghcid
   ];
 }
