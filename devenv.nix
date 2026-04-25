@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  cachix.enable = false;
+
   packages = with pkgs; [
     crystal
     ghc
