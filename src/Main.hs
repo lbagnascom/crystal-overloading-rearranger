@@ -1,14 +1,14 @@
 module Main (main) where
 
-import Control.Monad (zipWithM)
+import Control.Monad (zipWithM, unless)
 import Data.Text (pack)
 import GHC.IO.Exception (ExitCode)
 import PPrint (printProgram)
 import Parser (CrystalProgram, parseProgram)
 import Rearranger (rearrangeSlots)
-import System.Directory (createDirectory, doesDirectoryExist)
+import System.Directory (createDirectory, doesDirectoryExist, listDirectory)
 import System.Environment (getArgs)
-import System.FilePath (dropExtension, splitFileName, takeFileName, (<.>), (</>))
+import System.FilePath (dropExtension, splitFileName, takeFileName, takeExtension, (<.>), (</>))
 import System.Process (readProcessWithExitCode)
 import Text.Megaparsec (parse)
 
@@ -16,22 +16,30 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [input] -> do
-      content <- pack <$> readFile input
-      let (dir, fileNameWExt) = splitFileName input
-      let fileName = dropExtension fileNameWExt
-      case parse parseProgram fileNameWExt content of
-        Left _ ->
-          putStrLn "Parser failed"
-        Right out -> do
-          let outputDir = dir </> fileName
-          unlessIO (doesDirectoryExist outputDir) (createDirectory outputDir)
-          samples <- createPrograms (rearrangeSlots out) outputDir
-          outputs <- runFiles samples
-          saveResults outputs (outputDir </> "result.md")
-          pure ()
+    [inputsDir] -> do
+      files <- filter (\fn -> takeExtension fn == ".cr") <$> listDirectory inputsDir
+      mapM_ (oneFile inputsDir) files
     _ ->
-      putStrLn "Usage: cabal run crystal-parser -- <input-file>"
+      putStrLn "Usage: cabal run crystal-parser -- <inputs-dir>"
+
+
+oneFile :: FilePath -> FilePath -> IO ()
+oneFile dir fileName = do
+  -- TODO: bad naming: fileName, name, filePath, dir ¿¿??
+  content <- pack <$> readFile (dir </> fileName)
+  let name = dropExtension fileName
+  case parse parseProgram fileName content of
+    Left err -> do
+      -- TODO: improve error messages
+      putStrLn $ "Failed parsing file: " <> fileName
+      putStrLn $ "With error " <> show err
+    Right out -> do
+      let outputDir = dir </> name
+      unlessIO (doesDirectoryExist outputDir) (createDirectory outputDir)
+      samples <- createPrograms (rearrangeSlots out) outputDir
+      outputs <- runFiles samples
+      saveResults outputs (outputDir </> "result.md")
+      pure ()
 
 createPrograms :: [CrystalProgram] -> String -> IO [String]
 createPrograms ps dir = zipWithM createProgram [1 :: Int ..] ps
@@ -85,4 +93,4 @@ saveResults rs fn = writeFile fn (unlines content)
 unlessIO :: IO Bool -> IO () -> IO ()
 unlessIO condition action = do
   b <- condition
-  if b then pure () else action
+  unless b action
