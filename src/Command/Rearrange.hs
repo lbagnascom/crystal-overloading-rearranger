@@ -1,14 +1,13 @@
 module Command.Rearrange (rearrange) where
 
-import Control.Monad (zipWithM, unless)
+import Control.Monad (unless, zipWithM)
 import Data.Text (pack)
 import GHC.IO.Exception (ExitCode)
 import PPrint (printProgram)
 import Parser (CrystalProgram, parseProgram)
 import Rearranger (rearrangeSlots)
 import System.Directory (createDirectory, doesDirectoryExist, listDirectory)
-import System.Environment (getArgs)
-import System.FilePath (dropExtension, splitFileName, takeFileName, takeExtension, (<.>), (</>))
+import System.FilePath (dropExtension, takeExtension, takeFileName, (<.>), (</>))
 import System.Process (readProcessWithExitCode)
 import qualified Text.Megaparsec as Megaparsec
 
@@ -16,11 +15,17 @@ rearrange :: [String] -> IO ()
 rearrange args = do
   case args of
     [inputsDir] -> do
-      files <- filter (\fn -> takeExtension fn == ".cr") <$> listDirectory inputsDir
-      mapM_ (oneFile inputsDir) files
+      case takeExtension inputsDir of
+        "" -> do
+          files <- filter (\fn -> takeExtension fn == ".cr") <$> listDirectory inputsDir
+          mapM_ (oneFile inputsDir) files
+        ".cr" ->
+          oneFile "" inputsDir
+        _ -> do
+          putStrLn "Can only take a directory or a file with \".cr\" extension as an input"
+          putStrLn "Usage: cabal run crystal-tool -- rearrange <DIRECTORY/FILE>"
     _ ->
-      putStrLn "Usage: cabal run crystal-tool -- rearrange <inputs-dir>"
-
+      putStrLn "Usage: cabal run crystal-tool -- rearrange <DIRECTORY/FILE>"
 
 oneFile :: FilePath -> FilePath -> IO ()
 oneFile dir fileName = do
@@ -36,8 +41,8 @@ oneFile dir fileName = do
       let outputDir = dir </> name
       unlessIO (doesDirectoryExist outputDir) (createDirectory outputDir)
       samples <- createPrograms (rearrangeSlots out) outputDir
-      outputs <- runFiles samples
-      saveResults outputs (outputDir </> "result.md")
+      outputs <- mapM (runExperiment outputDir samples) crystalOpts
+      saveResults outputDir outputs (outputDir </> "result.md")
       pure ()
 
 createPrograms :: [CrystalProgram] -> String -> IO [String]
@@ -48,6 +53,13 @@ createPrograms ps dir = zipWithM createProgram [1 :: Int ..] ps
       writeFile name $ printProgram p
       pure name
 
+data Experiment = Experiment
+  { expName :: String,
+    expResults :: [ProcessResult],
+    expCrystalOpts :: [String]
+  }
+  deriving (Show, Eq)
+
 data ProcessResult = ProcessResult
   { prFileName :: String,
     prExitCode :: ExitCode,
@@ -56,29 +68,49 @@ data ProcessResult = ProcessResult
   }
   deriving (Show, Eq)
 
-runFiles :: [String] -> IO [ProcessResult]
-runFiles = mapM runFile
+crystalOpts :: [[String]]
+crystalOpts =
+  [ [],
+    ["-Dpreview_overload_order"]
+  ]
+
+runExperiment :: String -> [String] -> [String] -> IO Experiment
+runExperiment name files opts = do
+  results <- runFiles opts files
+  pure $
+    Experiment
+      { expName = name,
+        expCrystalOpts = opts,
+        expResults = results
+      }
+
+runFiles :: [String] -> [String] -> IO [ProcessResult]
+runFiles opts files = mapM runFile files
   where
-    runFile filePath = do
-      (exitCode, out, err) <- readProcessWithExitCode "crystal" ["run", filePath] ""
+    runFile file = do
+      (exitCode, out, err) <- readProcessWithExitCode "crystal" (["run", file] ++ opts) ""
       pure $
         ProcessResult
-          { prFileName = takeFileName filePath,
+          { prFileName = takeFileName file,
             prExitCode = exitCode,
             prStderr = err,
             prStdout = out
           }
 
 -- TODO: improve format for saving results
-saveResults :: [ProcessResult] -> String -> IO ()
-saveResults rs fn = writeFile fn (unlines content)
+saveResults :: String -> [Experiment] -> String -> IO ()
+saveResults sampleName exps fn = writeFile fn (unlines content)
   where
-    content =
-      [ "| Sample name | Exit code | Stdout | Stderr |",
-        "| ----------- | --------- | ------ | ------ |"
-      ]
-        ++ map (\s -> foldr (\f rec -> "| " ++ show (f s) ++ rec) " |" [prFileName, show . prExitCode, prStdout, prStderr]) rs
-        ++ ["\nAll samples produce same result when executing? " ++ show (allEqual rs)]
+    content = ("# Sample " ++ sampleName) : concatMap showExp exps
+    showExp exp =
+      let prs = expResults exp in
+        ["## Flags " ++ (show $ expCrystalOpts exp)] ++
+        exitCodes prs ++ stdOuts prs ++ stdErrs prs ++ conclusion prs
+    listWith prs f = map (\pr -> (dropExtension $ prFileName pr) ++ ". " ++ (show $ f pr)) prs
+    exitCodes prs = "### Exit codes " : listWith prs prExitCode
+    stdOuts prs = "### Stdouts " : listWith prs prStdout
+    stdErrs prs = "### Stderrs " : listWith prs prStderr
+    conclusion prs = "### Result" : [show $ allEqual prs]
 
     allEqual [] = True
     allEqual (x : xs) =
