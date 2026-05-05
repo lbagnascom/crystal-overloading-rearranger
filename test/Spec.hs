@@ -155,6 +155,23 @@ main = hspec $ do
                                 }
                             )
 
+          it "parses a function with multiple forall args" $
+            runFunctionParser "def foo(x : T) forall T, S, R end"
+              `shouldParse` ( Function
+                                { funName = "foo",
+                                  funArgs =
+                                    [ FunctionArg
+                                        { argName = "x",
+                                          argType = (Just "T"),
+                                          argDefaultValue = Nothing
+                                        }
+                                    ],
+                                  funFreeVars = (Just ["T", "S", "R"]),
+                                  funBody = [],
+                                  funAnnotation = Nothing
+                                }
+                            )
+
           it "parses a function with one forall arg" $
             runFunctionParser "def foo(x : T) forall T end"
               `shouldParse` ( Function
