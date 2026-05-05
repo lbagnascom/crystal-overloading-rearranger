@@ -53,7 +53,7 @@ parseBool = parseTrue <|> parseFalse
 data Function = Function
   { funName :: String,
     funArgs :: [FunctionArg],
-    funFreeVar :: Maybe String,
+    funFreeVars :: Maybe [String],
     funBody :: [String],
     funAnnotation :: Maybe String
   }
@@ -99,13 +99,13 @@ parseFunction = do
   _ <- symbol "def"
   name <- parseVarName
   args <- between (symbol "(") (symbol ")") (parseFunctionArg `sepBy` symbol ",")
-  freeVar <- optional $ symbol "forall" *> parseCapitalizedName
+  freeVars <- optional $ symbol "forall" *> (parseCapitalizedName `sepBy` symbol ",")
   body <- filter (not . null) . map (dropWhile isSpace) . lines <$> manyTill anySingle (symbol "end")
   pure $
     Function
       { funName = name,
         funArgs = args,
-        funFreeVar = freeVar,
+        funFreeVars = freeVars,
         funBody = body,
         funAnnotation = annotation
       }

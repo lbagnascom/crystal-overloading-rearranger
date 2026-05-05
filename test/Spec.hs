@@ -98,7 +98,7 @@ main = hspec $ do
               `shouldParse` ( Function
                                 { funName = "foo",
                                   funArgs = [],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = ["hola lulu", "chau lulu"],
                                   funAnnotation = Nothing
                                 }
@@ -115,7 +115,7 @@ main = hspec $ do
               `shouldParse` ( Function
                                 { funName = "foo",
                                   funArgs = [],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = [],
                                   funAnnotation = Nothing
                                 }
@@ -132,7 +132,7 @@ main = hspec $ do
               `shouldParse` ( Function
                                 { funName = "foo",
                                   funArgs = [],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = ["1"],
                                   funAnnotation = Just "SomeAnnotation"
                                 }
@@ -149,7 +149,7 @@ main = hspec $ do
                                           argDefaultValue = Nothing
                                         }
                                     ],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = [],
                                   funAnnotation = Nothing
                                 }
@@ -166,7 +166,7 @@ main = hspec $ do
                                           argDefaultValue = Nothing
                                         }
                                     ],
-                                  funFreeVar = (Just "T"),
+                                  funFreeVars = (Just ["T"]),
                                   funBody = [],
                                   funAnnotation = Nothing
                                 }
@@ -181,7 +181,7 @@ main = hspec $ do
                                       FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing},
                                       FunctionArg {argName = "z", argType = Nothing, argDefaultValue = Nothing}
                                     ],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = [],
                                   funAnnotation = Nothing
                                 }
@@ -196,7 +196,7 @@ main = hspec $ do
                                       FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ CrInt 1)},
                                       FunctionArg {argName = "z", argType = (Just "String"), argDefaultValue = (Just $ CrInt 34)}
                                     ],
-                                  funFreeVar = Nothing,
+                                  funFreeVars = Nothing,
                                   funBody = [],
                                   funAnnotation = Nothing
                                 }
@@ -222,7 +222,7 @@ main = hspec $ do
           { className = "A",
             superClass = "Reference",
             methods =
-              [ Function {funName = "foo", funArgs = [], funFreeVar = Nothing, funBody = ["1"], funAnnotation = Nothing}
+              [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
               ]
           }
 
@@ -241,7 +241,7 @@ main = hspec $ do
           { className = "A",
             superClass = "Bar",
             methods =
-              [ Function {funName = "foo", funArgs = [], funFreeVar = Nothing, funBody = ["1"], funAnnotation = Nothing}
+              [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
               ]
           }
 
@@ -269,7 +269,7 @@ main = hspec $ do
               [ Function
                   { funName = "foo",
                     funArgs = [],
-                    funFreeVar = Nothing,
+                    funFreeVars = Nothing,
                     funBody = ["1"],
                     funAnnotation = Nothing
                   },
@@ -279,7 +279,7 @@ main = hspec $ do
                       [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                         FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing}
                       ],
-                    funFreeVar = Nothing,
+                    funFreeVars = Nothing,
                     funBody = ["2"],
                     funAnnotation = Nothing
                   },
@@ -289,7 +289,7 @@ main = hspec $ do
                       [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                         FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ CrInt 1)}
                       ],
-                    funFreeVar = Nothing,
+                    funFreeVars = Nothing,
                     funBody = ["3"],
                     funAnnotation = Nothing
                   }
@@ -317,7 +317,7 @@ main = hspec $ do
                     funArgs =
                       [ (FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing})
                       ],
-                    funFreeVar = Nothing,
+                    funFreeVars = Nothing,
                     funBody = ["1"],
                     funAnnotation = Nothing
                   }
@@ -349,7 +349,7 @@ main = hspec $ do
                                 [ Function
                                     { funName = "foo",
                                       funArgs = [],
-                                      funFreeVar = Nothing,
+                                      funFreeVars = Nothing,
                                       funBody = ["1"],
                                       funAnnotation = Nothing
                                     }
@@ -369,7 +369,7 @@ main = hspec $ do
                                               argDefaultValue = Nothing
                                             }
                                         ],
-                                      funFreeVar = Nothing,
+                                      funFreeVars = Nothing,
                                       funBody = ["x + 34"],
                                       funAnnotation = Nothing
                                     }

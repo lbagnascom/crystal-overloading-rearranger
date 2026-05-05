@@ -3,7 +3,6 @@
 module PPrint where
 
 import Data.List (intercalate)
-import Data.Maybe (maybe)
 import Parser
 
 printProgram :: CrystalProgram -> String
@@ -23,13 +22,13 @@ printClass n (Class {className = name, superClass = super, methods = defs}) =
     indentation = replicate n ' '
 
 printFunction :: Int -> Function -> [String]
-printFunction n (Function {funName = name, funArgs = args, funFreeVar = freeVar, funBody = body}) =
+printFunction n (Function {funName = name, funArgs = args, funFreeVars = freeVars, funBody = body}) =
   (indentation ++ "def " ++ name ++ "(" ++ intercalate ", " (map printFunctionArg args) ++ ")" ++ maybeFreeVar)
     : map (("  " ++ indentation) ++) body
     ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
-    maybeFreeVar = maybe "" (" forall " ++) freeVar
+    maybeFreeVar = maybe "" (\xs -> " forall " ++ intercalate ", " xs) freeVars
 
 printFunctionArg :: FunctionArg -> String
 printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
