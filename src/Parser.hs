@@ -14,7 +14,7 @@ type Parser = Parsec Void Text
 -- Space consuming
 
 lineComment :: Parser ()
-lineComment = (L.skipLineComment "#")
+lineComment = L.skipLineComment "#"
 
 sc :: Parser ()
 sc = L.space space1 lineComment empty
