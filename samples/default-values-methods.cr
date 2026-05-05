@@ -4,8 +4,8 @@ class Foo
   end
 
   @[Slot]
-  def bar(a = 0)
+  def bar(a = true)
   end
 end
 
-Foo.new.bar 1
+Foo.new.bar false
