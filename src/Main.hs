@@ -1,5 +1,6 @@
 module Main (main) where
 
+import Control.Monad (zipWithM)
 import Data.Text (pack)
 import GHC.IO.Exception (ExitCode)
 import PPrint (printProgram)
@@ -10,7 +11,6 @@ import System.Environment (getArgs)
 import System.FilePath (dropExtension, splitFileName, takeFileName, (<.>), (</>))
 import System.Process (readProcessWithExitCode)
 import Text.Megaparsec (parse)
-import Control.Monad (zipWithM)
 
 main :: IO ()
 main = do
@@ -54,12 +54,13 @@ runFiles = mapM runFile
   where
     runFile filePath = do
       (exitCode, out, err) <- readProcessWithExitCode "crystal" ["run", filePath] ""
-      pure $ ProcessResult {
-        prFileName = takeFileName filePath,
-        prExitCode = exitCode,
-        prStderr = err,
-        prStdout = out
-      }
+      pure $
+        ProcessResult
+          { prFileName = takeFileName filePath,
+            prExitCode = exitCode,
+            prStderr = err,
+            prStdout = out
+          }
 
 saveResults :: [ProcessResult] -> String -> IO ()
 saveResults rs fn = writeFile fn (unlines content)
@@ -68,14 +69,18 @@ saveResults rs fn = writeFile fn (unlines content)
       [ "| Sample name | Exit code | Stdout | Stderr |",
         "| ----------- | --------- | ------ | ------ |"
       ]
-      ++ map (\s -> foldr (\f rec -> "| " ++ show (f s) ++ rec) " |" [prFileName, show . prExitCode, prStdout, prStderr]) rs
-      ++ [ "\nAll samples produce same result when executing? " ++ show (allEqual rs) ]
+        ++ map (\s -> foldr (\f rec -> "| " ++ show (f s) ++ rec) " |" [prFileName, show . prExitCode, prStdout, prStderr]) rs
+        ++ ["\nAll samples produce same result when executing? " ++ show (allEqual rs)]
 
     allEqual [] = True
-    allEqual (x:xs) = all
-      (\y -> prExitCode x == prExitCode y
-          && prStderr x == prStderr y
-          && prStdout x == prStdout y) xs
+    allEqual (x : xs) =
+      all
+        ( \y ->
+            prExitCode x == prExitCode y
+              && prStderr x == prStderr y
+              && prStdout x == prStdout y
+        )
+        xs
 
 unlessIO :: IO Bool -> IO () -> IO ()
 unlessIO condition action = do

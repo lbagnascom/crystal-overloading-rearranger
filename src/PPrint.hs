@@ -3,7 +3,7 @@
 module PPrint where
 
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (maybe)
 import Parser
 
 printProgram :: CrystalProgram -> String
@@ -17,26 +17,26 @@ printStmt n (UndiscoveredStmt s) = printUndiscovered n s
 printClass :: Int -> Class -> [String]
 printClass n (Class {className = name, superClass = super, methods = defs}) =
   (indentation ++ "class " ++ name ++ " < " ++ super)
-    : (intercalate [""] $ map (printFunction (n + 2)) defs)
+    : intercalate [""] (map (printFunction (n + 2)) defs)
     ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
 
 printFunction :: Int -> Function -> [String]
 printFunction n (Function {funName = name, funArgs = args, funFreeVar = freeVar, funBody = body}) =
-  (indentation ++ "def " ++ name ++ "(" ++ (intercalate ", " $ map printFunctionArg args) ++ ")" ++ maybeFreeVar)
+  (indentation ++ "def " ++ name ++ "(" ++ intercalate ", " (map printFunctionArg args) ++ ")" ++ maybeFreeVar)
     : map (("  " ++ indentation) ++) body
     ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
-    maybeFreeVar = (fromMaybe "" ((" forall " ++) <$> freeVar))
+    maybeFreeVar = maybe "" (" forall " ++) freeVar
 
 printFunctionArg :: FunctionArg -> String
 printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
   name ++ maybeType ++ maybeDefaultValue
   where
-    maybeType = fromMaybe "" ((" : " ++) <$> ty)
-    maybeDefaultValue = fromMaybe "" ((" = " ++) . printLiteral <$> defaultValue)
+    maybeType = maybe "" (" : " ++) ty
+    maybeDefaultValue = maybe "" ((" = " ++) . printLiteral) defaultValue
 
 printLiteral :: Literal -> String
 printLiteral (CrString s) = show s

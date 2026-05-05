@@ -98,9 +98,9 @@ parseFunction = do
   annotation <- optional $ between (symbol "@[") (symbol "]") parseCapitalizedName
   _ <- symbol "def"
   name <- parseVarName
-  args <- between (symbol "(") (symbol ")") (parseFunctionArg `sepBy` (symbol ","))
+  args <- between (symbol "(") (symbol ")") (parseFunctionArg `sepBy` symbol ",")
   freeVar <- optional $ symbol "forall" *> parseCapitalizedName
-  body <- (filter (not . null) . map (dropWhile isSpace) . lines) <$> manyTill anySingle (symbol "end")
+  body <- filter (not . null) . map (dropWhile isSpace) . lines <$> manyTill anySingle (symbol "end")
   pure $
     Function
       { funName = name,
