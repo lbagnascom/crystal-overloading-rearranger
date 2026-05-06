@@ -1,9 +1,11 @@
 @[Slot]
 def bar()
+  "bar()"
 end
 
 @[Slot]
-def bar(a = true)
+def bar(x = true)
+  "bar(x = true)"
 end
 
-bar false
+pp bar(false)

@@ -1,16 +1,16 @@
 @[Slot]
 def foo(x)
-  1
+  "x"
 end
 
 @[Slot]
 def foo(x : _)
-  2
+  "x : _"
 end
 
 @[Slot]
 def foo(x : T) forall T
-  3
+  "x : T"
 end
 
-pp foo(1)
+pp foo(true)

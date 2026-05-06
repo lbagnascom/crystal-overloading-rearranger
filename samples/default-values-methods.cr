@@ -1,11 +1,13 @@
 class Foo
   @[Slot]
   def bar()
+    "bar()"
   end
 
   @[Slot]
-  def bar(a = true)
+  def bar(x = true)
+    "bar(x = true)"
   end
 end
 
-Foo.new.bar false
+pp Foo.new.bar(false)
