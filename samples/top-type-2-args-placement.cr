@@ -1,11 +1,11 @@
 @[Slot]
 def foo(x : Bool, y)
-  "x : Int32, y"
+  "x : Bool, y"
 end
 
 @[Slot]
 def foo(x, y : Bool)
-  "x, y : Int32"
+  "x, y : Bool"
 end
 
 pp foo(true, true)
