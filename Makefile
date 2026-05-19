@@ -7,4 +7,4 @@ clean:
 	rm -rf samples/default-values-methods
 	rm -rf samples/top-type
 	rm -rf samples/top-type-2-args
-	rm -rf samples/top-type-2-args-placement
+	rm -rf samples/unrestricted-args-position
