@@ -61,7 +61,7 @@ class Foo
 end
 ```
 
-Only `@[Slot]`-annotated definitions are reordered; everything else stays in place.
+Only definitions annotated with `@[Slot]` are reordered, everything else stays in place.
 
 ## Output
 
@@ -69,6 +69,14 @@ For each input file `<name>.cr`, a directory `<name>/` is created containing:
 
 - `1.cr`, `2.cr`, … — one `.cr` file per permutation of the slots.
 - `result.md` — a summary report with exit codes, stdout, and stderr for each permutation, compiled once per crystal opts subset we are interested in.
+
+## Samples
+
+The `samples/` directory contains interesting Crystal cases used for analysis: programs where overload ordering has a noticeable effect on compiler behavior. To run all of them:
+
+```sh
+cabal run crystal-parser -- rearrange samples/
+```
 
 ## Development
 
@@ -80,7 +88,7 @@ make repl
 
 ## Parser Limitations
 
-This tool only parses a small subset of Crystal — enough for the analysis it performs. Supported constructs include:
+This tool only parses a small subset of Crystal,  enough for the analysis it performs. Supported constructs include:
 
 - **Classes** with an optional superclass (`class Foo < Bar`)
 - **Functions and methods** with typed/untyped arguments, default literal values, and `forall` type variables (with a very simple body)
