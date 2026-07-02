@@ -8,7 +8,8 @@ isSlot :: Function -> Bool
 isSlot f = funAnnotation f == Just "Slot"
 
 slots :: Stmt -> [Function]
-slots (ClassStmt c) = filter isSlot $ methods c
+slots (ClassStmt c) = filter isSlot $ classMethods c
+slots (ModuleStmt c) = filter isSlot $ moduleMethods c
 slots (FunctionStmt f) = if isSlot f then [f] else []
 slots (UndiscoveredStmt _) = []
 
@@ -20,10 +21,15 @@ replaceSlots [] fs = ([], fs)
 replaceSlots cr [] = (cr, [])
 replaceSlots (s : ss) (f : fs) = case s of
   ClassStmt sClass ->
-    let (newMethods, fs1) = replaceFuns (methods sClass) (f : fs)
-        newClassStmt = ClassStmt $ sClass {methods = newMethods}
+    let (newMethods, fs1) = replaceFuns (classMethods sClass) (f : fs)
+        newClassStmt = ClassStmt $ sClass {classMethods = newMethods}
         (ss2, fs2) = replaceSlots ss fs1
      in (newClassStmt : ss2, fs2)
+  ModuleStmt sModule ->
+    let (newMethods, fs1) = replaceFuns (moduleMethods sModule) (f : fs)
+        newModuleStmt = ModuleStmt $ sModule {moduleMethods = newMethods}
+        (ss2, fs2) = replaceSlots ss fs1
+     in (newModuleStmt : ss2, fs2)
   FunctionStmt f2 ->
     if isSlot f2
       then
@@ -34,6 +40,7 @@ replaceSlots (s : ss) (f : fs) = case s of
          in (s : ss2, fs2)
   UndiscoveredStmt _ ->
     replaceSlots ss (f : fs)
+
 
 replaceFuns :: [Function] -> [Function] -> ([Function], [Function])
 replaceFuns [] fs = ([], fs)

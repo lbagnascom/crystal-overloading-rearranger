@@ -1,9 +1,8 @@
 # Cabal
 dist-newstyle/
 
-# Experiments
-samples/
-!samples/*.cr
+# Experiment outputs
+out/
 
 # Devenv
 .devenv*

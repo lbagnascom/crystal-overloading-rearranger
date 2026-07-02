@@ -110,12 +110,28 @@ parseFunction = do
         funAnnotation = annotation
       }
 
+-- Modules
+
+data Module = Module
+  { moduleName :: String,
+    moduleMethods :: [Function]
+  }
+  deriving (Show, Eq)
+
+parseModule :: Parser Module
+parseModule = do
+  _ <- symbol "module"
+  name <- parseCapitalizedName
+  defs <- manyTill parseFunction (symbol "end")
+  pure $ Module {moduleName = name, moduleMethods = defs}
+
 -- Classes
 
 data Class = Class
   { className :: String,
-    superClass :: String,
-    methods :: [Function]
+    classSuper :: String,
+    classModules :: [String],
+    classMethods :: [Function]
   }
   deriving (Show, Eq)
 
@@ -124,13 +140,15 @@ parseClass = do
   _ <- symbol "class"
   name <- parseCapitalizedName
   super <- option "Reference" (symbol "<" *> parseCapitalizedName)
+  includes <- many (symbol "include" *> parseCapitalizedName)
   defs <- manyTill parseFunction (symbol "end")
-  pure $ Class {className = name, superClass = super, methods = defs}
+  pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 
 -- Crystal program
 
 data Stmt
   = ClassStmt Class
+  | ModuleStmt Module
   | FunctionStmt Function
   | UndiscoveredStmt String
   deriving (Show, Eq)
@@ -139,6 +157,7 @@ parseStmt :: Parser Stmt
 parseStmt =
   choice
     [ ClassStmt <$> parseClass,
+      ModuleStmt <$> parseModule,
       FunctionStmt <$> parseFunction,
       UndiscoveredStmt <$> manyTill anySingle eol
     ]
