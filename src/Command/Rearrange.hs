@@ -6,7 +6,7 @@ import GHC.IO.Exception (ExitCode)
 import PPrint (printProgram)
 import Parser (CrystalProgram, parseProgram)
 import Rearranger (rearrangeSlots)
-import System.Directory (createDirectory, doesDirectoryExist, listDirectory)
+import System.Directory (createDirectory, createDirectoryIfMissing, doesDirectoryExist, listDirectory)
 import System.FilePath (dropExtension, takeExtension, takeFileName, (<.>), (</>))
 import System.Process (readProcessWithExitCode)
 import qualified Text.Megaparsec as Megaparsec
@@ -28,17 +28,19 @@ rearrange args = do
       putStrLn "Usage: cabal run crystal-tool -- rearrange <DIRECTORY/FILE>"
 
 oneFile :: FilePath -> FilePath -> IO ()
-oneFile dir fileName = do
+oneFile fileDir fileName = do
   -- TODO: bad naming: fileName, name, filePath, dir ¿¿??
-  content <- pack <$> readFile (dir </> fileName)
-  let name = dropExtension fileName
+  content <- pack <$> readFile (fileDir </> fileName)
+  createDirectoryIfMissing False "out"
+  let name = dropExtension $ takeFileName fileName
+  putStrLn name
   case Megaparsec.parse parseProgram fileName content of
     Left err -> do
       -- TODO: improve error messages
       putStrLn $ "Failed parsing file: " <> fileName
       putStrLn $ "With error " <> show err
     Right out -> do
-      let outputDir = dir </> name
+      let outputDir = "out" </> name
       unlessIO (doesDirectoryExist outputDir) (createDirectory outputDir)
       samples <- createPrograms (rearrangeSlots out) outputDir
       outputs <- mapM (runExperiment outputDir samples) crystalOpts
