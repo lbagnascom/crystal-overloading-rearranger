@@ -130,7 +130,7 @@ parseModule = do
 data Class = Class
   { className :: String,
     classSuper :: String,
-    classModules :: [Module],
+    classModules :: [String],
     classMethods :: [Function]
   }
   deriving (Show, Eq)
@@ -140,7 +140,7 @@ parseClass = do
   _ <- symbol "class"
   name <- parseCapitalizedName
   super <- option "Reference" (symbol "<" *> parseCapitalizedName)
-  includes <- manyTill (symbol "include" *> parseCapitalizedName) eol
+  includes <- many (symbol "include" *> parseCapitalizedName)
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 

@@ -10,13 +10,23 @@ printProgram stmts = intercalate "\n" $ intercalate [""] $ map (printStmt 0) stm
 
 printStmt :: Int -> Stmt -> [String]
 printStmt n (ClassStmt c) = printClass n c
+printStmt n (ModuleStmt m) = printModule n m
 printStmt n (FunctionStmt def) = printFunction n def
 printStmt n (UndiscoveredStmt s) = printUndiscovered n s
 
-printClass :: Int -> Class -> [String]
-printClass n (Class {className = name, classSuper = super, classMethods = defs}) =
-  (indentation ++ "class " ++ name ++ " < " ++ super)
+printModule :: Int -> Module -> [String]
+printModule n (Module {moduleName = name, moduleMethods = defs}) =
+  (indentation ++ "module " ++ name)
     : intercalate [""] (map (printFunction (n + 2)) defs)
+    ++ [indentation ++ "end"]
+  where
+    indentation = replicate n ' '
+
+printClass :: Int -> Class -> [String]
+printClass n (Class {className = name, classSuper = super, classMethods = defs, classModules = modules}) =
+  (indentation ++ "class " ++ name ++ " < " ++ super)
+    :  (map (\m -> indentation ++ "  include " ++ m) modules)
+    ++ intercalate [""] (map (printFunction (n + 2)) defs)
     ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '

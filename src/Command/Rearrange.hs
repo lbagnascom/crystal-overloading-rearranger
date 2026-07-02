@@ -102,9 +102,9 @@ saveResults :: String -> [Experiment] -> String -> IO ()
 saveResults sampleName exps fn = writeFile fn (unlines content)
   where
     content = ("# Sample " ++ sampleName) : concatMap showExp exps
-    showExp exp =
-      let prs = expResults exp in
-        ["## Flags " ++ (show $ expCrystalOpts exp)] ++
+    showExp expr =
+      let prs = expResults expr in
+        ["## Flags " ++ (show $ expCrystalOpts expr)] ++
         exitCodes prs ++ stdOuts prs ++ stdErrs prs ++ conclusion prs
     listWith prs f = map (\pr -> (dropExtension $ prFileName pr) ++ ". " ++ (show $ f pr)) prs
     exitCodes prs = "### Exit codes " : listWith prs prExitCode

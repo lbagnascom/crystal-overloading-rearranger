@@ -222,7 +222,7 @@ main = hspec $ do
   describe "parseClasses" $ do
     it "parse an empty class" $
       parse parseClass "" "class A end"
-        `shouldParse` Class {className = "A", superClass = "Reference", methods = []}
+        `shouldParse` Class {className = "A", classSuper = "Reference", classMethods = [], classModules = []}
 
     it "parse a class with one method" $
       parse
@@ -237,10 +237,11 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Reference",
-            methods =
+            classSuper = "Reference",
+            classMethods =
               [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
-              ]
+              ],
+            classModules = []
           }
 
     it "parse a class with superclass" $
@@ -256,10 +257,11 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Bar",
-            methods =
+            classSuper = "Bar",
+            classMethods =
               [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
-              ]
+              ],
+            classModules = []
           }
 
     it "parses a class with multiple methods" $
@@ -281,8 +283,9 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Reference",
-            methods =
+            classSuper = "Reference",
+            classModules = [],
+            classMethods =
               [ Function
                   { funName = "foo",
                     funArgs = [],
@@ -327,8 +330,8 @@ main = hspec $ do
         |]
         `shouldParse` Class
           { className = "A",
-            superClass = "Reference",
-            methods =
+            classSuper = "Reference",
+            classMethods =
               [ Function
                   { funName = "foo",
                     funArgs =
@@ -338,7 +341,8 @@ main = hspec $ do
                     funBody = ["1"],
                     funAnnotation = Nothing
                   }
-              ]
+              ],
+            classModules = []
           }
 
     it "parse two classes" $
@@ -361,8 +365,8 @@ main = hspec $ do
         `shouldParse` [ ClassStmt $
                           Class
                             { className = "A",
-                              superClass = "Reference",
-                              methods =
+                              classSuper = "Reference",
+                              classMethods =
                                 [ Function
                                     { funName = "foo",
                                       funArgs = [],
@@ -370,13 +374,14 @@ main = hspec $ do
                                       funBody = ["1"],
                                       funAnnotation = Nothing
                                     }
-                                ]
+                                ],
+                              classModules = []
                             },
                         ClassStmt $
                           Class
                             { className = "B",
-                              superClass = "A",
-                              methods =
+                              classSuper = "A",
+                              classMethods =
                                 [ Function
                                     { funName = "foo",
                                       funArgs =
@@ -390,7 +395,8 @@ main = hspec $ do
                                       funBody = ["x + 34"],
                                       funAnnotation = Nothing
                                     }
-                                ]
+                                ],
+                              classModules = []
                             }
                       ]
 
@@ -411,17 +417,36 @@ main = hspec $ do
         |]
         `shouldParse` [ ClassStmt $
                           Class
-                            "A"
-                            "Reference"
-                            [ Function "foo" [] Nothing ["1"] Nothing
-                            ],
+                            { className = "A",
+                              classSuper = "Reference",
+                              classMethods =
+                                [ Function
+                                    { funName = "foo",
+                                      funArgs = [],
+                                      funFreeVars = Nothing,
+                                      funBody = ["1"],
+                                      funAnnotation = Nothing
+                                    }
+                                ],
+                              classModules = []
+                            },
                         FunctionStmt $
                           Function
-                            "baz"
-                            [ FunctionArg "x" Nothing Nothing,
-                              FunctionArg "y" Nothing Nothing
-                            ]
-                            Nothing
-                            ["x + 34"]
-                            Nothing
+                            { funName = "baz",
+                              funArgs =
+                                [ FunctionArg
+                                    { argName = "x",
+                                      argType = Nothing,
+                                      argDefaultValue = Nothing
+                                    },
+                                  FunctionArg
+                                    { argName = "y",
+                                      argType = Nothing,
+                                      argDefaultValue = Nothing
+                                    }
+                                ],
+                              funFreeVars = Nothing,
+                              funBody = ["x + 34"],
+                              funAnnotation = Nothing
+                            }
                       ]
