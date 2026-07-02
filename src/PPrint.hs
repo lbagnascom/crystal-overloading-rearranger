@@ -14,7 +14,7 @@ printStmt n (FunctionStmt def) = printFunction n def
 printStmt n (UndiscoveredStmt s) = printUndiscovered n s
 
 printClass :: Int -> Class -> [String]
-printClass n (Class {className = name, superClass = super, methods = defs}) =
+printClass n (Class {className = name, classSuper = super, classMethods = defs}) =
   (indentation ++ "class " ++ name ++ " < " ++ super)
     : intercalate [""] (map (printFunction (n + 2)) defs)
     ++ [indentation ++ "end"]
