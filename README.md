@@ -34,11 +34,13 @@ This is useful for verifying that your file falls within the [supported subset](
 Generates all permutations of `@[Slot]`-annotated functions/methods in a file (or every `.cr` file in a directory), runs each permutation through the Crystal compiler, and saves the results.
 
 **Single file:**
+
 ```sh
 cabal run crystal-parser -- rearrange <file.cr>
 ```
 
 **Directory:**
+
 ```sh
 cabal run crystal-parser -- rearrange <directory/>
 ```
@@ -88,9 +90,10 @@ make repl
 
 ## Parser Limitations
 
-This tool only parses a small subset of Crystal,  enough for the analysis it performs. Supported constructs include:
+This tool only parses a small subset of Crystal, enough for the analysis it performs. Supported constructs include:
 
-- **Classes** with an optional superclass (`class Foo < Bar`)
+- **Classes** with an optional superclass, module inclusions and method definitions (`class Foo < Bar`)
+- **Modules** with methods
 - **Functions and methods** with typed/untyped arguments, default literal values, and `forall` type variables (with a very simple body)
 - **Annotations** (e.g. `@[Slot]`)
 - **Literals**: integers, strings (`"..."`), booleans (`true` / `false`)
