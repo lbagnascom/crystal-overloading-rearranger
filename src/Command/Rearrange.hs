@@ -33,7 +33,6 @@ oneFile fileDir fileName = do
   content <- pack <$> readFile (fileDir </> fileName)
   createDirectoryIfMissing False "out"
   let name = dropExtension $ takeFileName fileName
-  putStrLn name
   case Megaparsec.parse parseProgram fileName content of
     Left err -> do
       -- TODO: improve error messages
@@ -105,9 +104,12 @@ saveResults sampleName exps fn = writeFile fn (unlines content)
   where
     content = ("# Sample " ++ sampleName) : concatMap showExp exps
     showExp expr =
-      let prs = expResults expr in
-        ["## Flags " ++ (show $ expCrystalOpts expr)] ++
-        exitCodes prs ++ stdOuts prs ++ stdErrs prs ++ conclusion prs
+      let prs = expResults expr
+       in ["## Flags " ++ (show $ expCrystalOpts expr)]
+            ++ exitCodes prs
+            ++ stdOuts prs
+            ++ stdErrs prs
+            ++ conclusion prs
     listWith prs f = map (\pr -> (dropExtension $ prFileName pr) ++ ". " ++ (show $ f pr)) prs
     exitCodes prs = "### Exit codes " : listWith prs prExitCode
     stdOuts prs = "### Stdouts " : listWith prs prStdout
