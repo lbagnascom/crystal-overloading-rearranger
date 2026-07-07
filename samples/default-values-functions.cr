@@ -8,4 +8,4 @@ def bar(x = true)
   "bar(x = true)"
 end
 
-pp bar(false)
+pp bar()
