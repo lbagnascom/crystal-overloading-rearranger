@@ -9,7 +9,7 @@ import Data.Void
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
-import TypeResolver (UnresolvedAst, UnresolvedStmt)
+import TypeResolver (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 
 type Parser = Parsec Void Text
 
@@ -61,19 +61,19 @@ parseCapitalizedName = lexeme $ do
   nameTail <- many alphaNumChar
   pure (nameHead : nameTail)
 
-parseFunctionArg :: Parser (FunctionArg String)
+parseFunctionArg :: Parser (FunctionArg UnresolvedType)
 parseFunctionArg = do
   varName <- parseVarName
-  funArgType <- optional (symbol ":" *> parseTypeName)
+  funArgType <- optional (symbol ":" *> (unrTypeRef <$> parseTypeName))
   defaultValue <- optional $ symbol "=" *> parseLiteral
   pure $
     FunctionArg
       { argName = varName,
-        argTypeName = funArgType,
+        argType = funArgType,
         argDefaultValue = defaultValue
       }
 
-parseFunction :: Parser (Function String)
+parseFunction :: Parser (Function UnresolvedType)
 parseFunction = do
   annotation <- optional $ between (symbol "@[") (symbol "]") parseCapitalizedName
   _ <- symbol "def"
@@ -92,7 +92,7 @@ parseFunction = do
 
 -- Modules
 
-parseModule :: Parser (Module String)
+parseModule :: Parser (Module UnresolvedType)
 parseModule = do
   _ <- symbol "module"
   name <- parseCapitalizedName
@@ -101,12 +101,16 @@ parseModule = do
 
 -- Classes
 
-parseClass :: Parser (Class String)
+unrTypeRef :: String -> TypeRef UnresolvedType
+unrTypeRef n = TypeRef {tRefName = n, tRefType = ()}
+
+
+parseClass :: Parser (Class UnresolvedType)
 parseClass = do
   _ <- symbol "class"
   name <- parseCapitalizedName
-  super <- option "Reference" (symbol "<" *> parseCapitalizedName)
-  includes <- many (symbol "include" *> parseCapitalizedName)
+  super <- unrTypeRef <$> option "Reference" (symbol "<" *> parseCapitalizedName)
+  includes <- many (symbol "include" *> (unrTypeRef <$> parseCapitalizedName))
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 

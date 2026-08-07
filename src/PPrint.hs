@@ -4,16 +4,17 @@ module PPrint where
 
 import AstTypes
 import Data.List (intercalate)
-printProgram :: (Show t) => AST t -> String
+
+printProgram :: AST t -> String
 printProgram stmts = intercalate "\n" $ intercalate [""] $ map (printStmt 0) stmts
 
-printStmt :: (Show t) => Int -> Stmt t -> [String]
+printStmt :: Int -> Stmt t -> [String]
 printStmt n (ClassStmt c) = printClass n c
 printStmt n (ModuleStmt m) = printModule n m
 printStmt n (FunctionStmt def) = printFunction n def
 printStmt n (UndiscoveredStmt s) = printUndiscovered n s
 
-printModule :: (Show t) => Int -> Module t -> [String]
+printModule :: Int -> Module t -> [String]
 printModule n (Module {moduleName = name, moduleMethods = defs}) =
   (indentation ++ "module " ++ name)
     : intercalate [""] (map (printFunction (n + 2)) defs)
@@ -21,7 +22,7 @@ printModule n (Module {moduleName = name, moduleMethods = defs}) =
   where
     indentation = replicate n ' '
 
-printClass :: (Show t) => Int -> Class t -> [String]
+printClass :: Int -> Class t -> [String]
 printClass n (Class {className = name, classSuper = super, classMethods = defs, classModules = modules}) =
   (indentation ++ "class " ++ name ++ " < " ++ tRefName super)
   : (map (\m -> indentation ++ "  include " ++ tRefName m) modules)
@@ -30,7 +31,7 @@ printClass n (Class {className = name, classSuper = super, classMethods = defs, 
   where
     indentation = replicate n ' '
 
-printFunction :: (Show t) => Int -> Function t -> [String]
+printFunction :: Int -> Function t -> [String]
 printFunction n (Function {funName = name, funArgs = args, funFreeVars = freeVars, funBody = body}) =
   (indentation ++ "def " ++ name ++ "(" ++ intercalate ", " (map printFunctionArg args) ++ ")" ++ maybeFreeVar)
     : map (("  " ++ indentation) ++) body
@@ -39,8 +40,8 @@ printFunction n (Function {funName = name, funArgs = args, funFreeVars = freeVar
     indentation = replicate n ' '
     maybeFreeVar = maybe "" (\xs -> " forall " ++ intercalate ", " xs) freeVars
 
-printFunctionArg :: (Show t) => FunctionArg t -> String
-printFunctionArg (FunctionArg {argName = name, argTypeName = ty, argDefaultValue = defaultValue}) =
+printFunctionArg :: FunctionArg t -> String
+printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
   name ++ maybeType ++ maybeDefaultValue
   where
     maybeType = maybe "" (\typeRef -> " : " ++ tRefName typeRef) ty

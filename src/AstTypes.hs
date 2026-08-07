@@ -40,7 +40,7 @@ data Function t = Function
 
 data FunctionArg t = FunctionArg
   { argName :: String,
-    argTypeName :: Maybe (TypeRef t),
+    argType :: Maybe (TypeRef t),
     argDefaultValue :: Maybe Literal
   }
   deriving (Show, Eq)
