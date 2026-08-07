@@ -3,14 +3,16 @@
 
 module Spec where
 
-import Data.String.Interpolate (__i)
-import Parser
+import AstTypes
   ( Class (..),
     Function (..),
     FunctionArg (..),
     Literal (..),
     Stmt (..),
-    parseBool,
+  )
+import Data.String.Interpolate (__i)
+import Parser
+  ( parseBool,
     parseClass,
     parseFunction,
     parseFunctionArg,

@@ -1,22 +1,21 @@
 module Rearranger where
 
+import AstTypes
 import Data.Bifunctor (first)
 import Data.List (permutations)
-import Parser
-
-isSlot :: Function -> Bool
+isSlot :: Function t -> Bool
 isSlot f = funAnnotation f == Just "Slot"
 
-slots :: Stmt -> [Function]
+slots :: Stmt t -> [Function t]
 slots (ClassStmt c) = filter isSlot $ classMethods c
 slots (ModuleStmt c) = filter isSlot $ moduleMethods c
 slots (FunctionStmt f) = if isSlot f then [f] else []
 slots (UndiscoveredStmt _) = []
 
-rearrangeSlots :: CrystalProgram -> [CrystalProgram]
+rearrangeSlots :: AST t -> [AST t]
 rearrangeSlots cr = map (fst . replaceSlots cr) (permutations $ concatMap slots cr)
 
-replaceSlots :: CrystalProgram -> [Function] -> (CrystalProgram, [Function])
+replaceSlots :: AST t -> [Function t] -> (AST t, [Function t])
 replaceSlots [] fs = ([], fs)
 replaceSlots cr [] = (cr, [])
 replaceSlots (s : ss) (f : fs) = case s of
@@ -41,8 +40,7 @@ replaceSlots (s : ss) (f : fs) = case s of
   UndiscoveredStmt _ ->
     replaceSlots ss (f : fs)
 
-
-replaceFuns :: [Function] -> [Function] -> ([Function], [Function])
+replaceFuns :: [Function t] -> [Function t] -> ([Function t], [Function t])
 replaceFuns [] fs = ([], fs)
 replaceFuns fs [] = (fs, [])
 replaceFuns (x : xs) (y : ys) =

@@ -2,12 +2,14 @@
 
 module Parser where
 
+import AstTypes
 import Data.Char (isSpace)
 import Data.Text (Text, unpack)
 import Data.Void
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
+import TypeResolver (UnresolvedAst, UnresolvedStmt)
 
 type Parser = Parsec Void Text
 
@@ -25,13 +27,7 @@ lexeme = L.lexeme sc
 symbol :: Text -> Parser Text
 symbol = L.symbol sc
 
--- Literals
-
-data Literal
-  = CrString String
-  | CrInt Integer
-  | CrBool Bool
-  deriving (Show, Eq)
+-- Literal
 
 parseLiteral :: Parser Literal
 parseLiteral = parseInteger <|> parseString <|> parseBool
@@ -50,22 +46,6 @@ parseBool = parseTrue <|> parseFalse
 
 -- Functions / Methods
 
-data Function = Function
-  { funName :: String,
-    funArgs :: [FunctionArg],
-    funFreeVars :: Maybe [String],
-    funBody :: [String],
-    funAnnotation :: Maybe String
-  }
-  deriving (Show, Eq)
-
-data FunctionArg = FunctionArg
-  { argName :: String,
-    argTypeName :: Maybe String,
-    argDefaultValue :: Maybe Literal
-  }
-  deriving (Show, Eq)
-
 parseVarName :: Parser String
 parseVarName = lexeme $ do
   nameHead <- letterChar
@@ -81,7 +61,7 @@ parseCapitalizedName = lexeme $ do
   nameTail <- many alphaNumChar
   pure (nameHead : nameTail)
 
-parseFunctionArg :: Parser FunctionArg
+parseFunctionArg :: Parser (FunctionArg String)
 parseFunctionArg = do
   varName <- parseVarName
   funArgType <- optional (symbol ":" *> parseTypeName)
@@ -93,7 +73,7 @@ parseFunctionArg = do
         argDefaultValue = defaultValue
       }
 
-parseFunction :: Parser Function
+parseFunction :: Parser (Function String)
 parseFunction = do
   annotation <- optional $ between (symbol "@[") (symbol "]") parseCapitalizedName
   _ <- symbol "def"
@@ -112,13 +92,7 @@ parseFunction = do
 
 -- Modules
 
-data Module = Module
-  { moduleName :: String,
-    moduleMethods :: [Function]
-  }
-  deriving (Show, Eq)
-
-parseModule :: Parser Module
+parseModule :: Parser (Module String)
 parseModule = do
   _ <- symbol "module"
   name <- parseCapitalizedName
@@ -127,15 +101,7 @@ parseModule = do
 
 -- Classes
 
-data Class = Class
-  { className :: String,
-    classSuper :: String,
-    classModules :: [String],
-    classMethods :: [Function]
-  }
-  deriving (Show, Eq)
-
-parseClass :: Parser Class
+parseClass :: Parser (Class String)
 parseClass = do
   _ <- symbol "class"
   name <- parseCapitalizedName
@@ -146,14 +112,7 @@ parseClass = do
 
 -- Crystal program
 
-data Stmt
-  = ClassStmt Class
-  | ModuleStmt Module
-  | FunctionStmt Function
-  | UndiscoveredStmt String
-  deriving (Show, Eq)
-
-parseStmt :: Parser Stmt
+parseStmt :: Parser UnresolvedStmt
 parseStmt =
   choice
     [ ClassStmt <$> parseClass,
@@ -162,7 +121,5 @@ parseStmt =
       UndiscoveredStmt <$> manyTill anySingle eol
     ]
 
-type CrystalProgram = [Stmt]
-
-parseProgram :: Parser CrystalProgram
+parseProgram :: Parser UnresolvedAst
 parseProgram = manyTill parseStmt eof
