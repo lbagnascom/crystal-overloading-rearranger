@@ -2,6 +2,12 @@ module AstTypes where
 
 type AST t = [Stmt t]
 
+data TypeRef t = TypeRef
+  { tRefName :: String,
+    tRefType :: t
+  }
+  deriving (Show, Eq)
+
 data Stmt t
   = ClassStmt (Class t)
   | ModuleStmt (Module t)
@@ -17,8 +23,8 @@ data Module t = Module
 
 data Class t = Class
   { className :: String,
-    classSuper :: String,
-    classModules :: [String],
+    classSuper :: TypeRef t,
+    classModules :: [TypeRef t],
     classMethods :: [Function t]
   }
   deriving (Show, Eq)
@@ -34,7 +40,7 @@ data Function t = Function
 
 data FunctionArg t = FunctionArg
   { argName :: String,
-    argTypeName :: Maybe t,
+    argTypeName :: Maybe (TypeRef t),
     argDefaultValue :: Maybe Literal
   }
   deriving (Show, Eq)

@@ -23,8 +23,8 @@ printModule n (Module {moduleName = name, moduleMethods = defs}) =
 
 printClass :: (Show t) => Int -> Class t -> [String]
 printClass n (Class {className = name, classSuper = super, classMethods = defs, classModules = modules}) =
-  (indentation ++ "class " ++ name ++ " < " ++ super)
-    : (map (\m -> indentation ++ "  include " ++ m) modules)
+  (indentation ++ "class " ++ name ++ " < " ++ tRefName super)
+  : (map (\m -> indentation ++ "  include " ++ tRefName m) modules)
     ++ intercalate [""] (map (printFunction (n + 2)) defs)
     ++ [indentation ++ "end"]
   where
@@ -43,7 +43,7 @@ printFunctionArg :: (Show t) => FunctionArg t -> String
 printFunctionArg (FunctionArg {argName = name, argTypeName = ty, argDefaultValue = defaultValue}) =
   name ++ maybeType ++ maybeDefaultValue
   where
-    maybeType = maybe "" (\typeName -> " : " ++ show typeName) ty
+    maybeType = maybe "" (\typeRef -> " : " ++ tRefName typeRef) ty
     maybeDefaultValue = maybe "" ((" = " ++) . printLiteral) defaultValue
 
 printLiteral :: Literal -> String
