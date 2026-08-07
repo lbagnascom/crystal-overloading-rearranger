@@ -61,7 +61,7 @@ data Function = Function
 
 data FunctionArg = FunctionArg
   { argName :: String,
-    argType :: Maybe String,
+    argTypeName :: Maybe String,
     argDefaultValue :: Maybe Literal
   }
   deriving (Show, Eq)
@@ -89,7 +89,7 @@ parseFunctionArg = do
   pure $
     FunctionArg
       { argName = varName,
-        argType = funArgType,
+        argTypeName = funArgType,
         argDefaultValue = defaultValue
       }
 

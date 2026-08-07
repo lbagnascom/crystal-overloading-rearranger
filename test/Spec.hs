@@ -51,7 +51,7 @@ main = hspec $ do
             runFunctionArgParser "x"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Nothing,
+                  argTypeName = Nothing,
                   argDefaultValue = Nothing
                 }
 
@@ -59,7 +59,7 @@ main = hspec $ do
             runFunctionArgParser "x : SomeType"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just "SomeType"),
+                  argTypeName = (Just "SomeType"),
                   argDefaultValue = Nothing
                 }
 
@@ -67,7 +67,7 @@ main = hspec $ do
             runFunctionArgParser "x : _"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just "_"),
+                  argTypeName = (Just "_"),
                   argDefaultValue = Nothing
                 }
 
@@ -75,7 +75,7 @@ main = hspec $ do
             runFunctionArgParser "x : Int32 = 123"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just "Int32"),
+                  argTypeName = (Just "Int32"),
                   argDefaultValue = (Just $ CrInt 123)
                 }
 
@@ -83,7 +83,7 @@ main = hspec $ do
             runFunctionArgParser "x = 123"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Nothing,
+                  argTypeName = Nothing,
                   argDefaultValue = (Just $ CrInt 123)
                 }
 
@@ -145,7 +145,7 @@ main = hspec $ do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = Nothing,
+                                          argTypeName = Nothing,
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -162,7 +162,7 @@ main = hspec $ do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just "T"),
+                                          argTypeName = (Just "T"),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -179,7 +179,7 @@ main = hspec $ do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just "T"),
+                                          argTypeName = (Just "T"),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -194,9 +194,9 @@ main = hspec $ do
               `shouldParse` ( Function
                                 { funName = "foo",
                                   funArgs =
-                                    [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "z", argType = Nothing, argDefaultValue = Nothing}
+                                    [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "z", argTypeName = Nothing, argDefaultValue = Nothing}
                                     ],
                                   funFreeVars = Nothing,
                                   funBody = [],
@@ -209,9 +209,9 @@ main = hspec $ do
               `shouldParse` ( Function
                                 { funName = "foo",
                                   funArgs =
-                                    [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ CrInt 1)},
-                                      FunctionArg {argName = "z", argType = (Just "String"), argDefaultValue = (Just $ CrInt 34)}
+                                    [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ CrInt 1)},
+                                      FunctionArg {argName = "z", argTypeName = (Just "String"), argDefaultValue = (Just $ CrInt 34)}
                                     ],
                                   funFreeVars = Nothing,
                                   funBody = [],
@@ -296,8 +296,8 @@ main = hspec $ do
                 Function
                   { funName = "foo",
                     funArgs =
-                      [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                        FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing}
+                      [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
+                        FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = Nothing}
                       ],
                     funFreeVars = Nothing,
                     funBody = ["2"],
@@ -306,8 +306,8 @@ main = hspec $ do
                 Function
                   { funName = "foo",
                     funArgs =
-                      [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                        FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ CrInt 1)}
+                      [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
+                        FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ CrInt 1)}
                       ],
                     funFreeVars = Nothing,
                     funBody = ["3"],
@@ -335,7 +335,7 @@ main = hspec $ do
               [ Function
                   { funName = "foo",
                     funArgs =
-                      [ (FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing})
+                      [ (FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing})
                       ],
                     funFreeVars = Nothing,
                     funBody = ["1"],
@@ -387,7 +387,7 @@ main = hspec $ do
                                       funArgs =
                                         [ FunctionArg
                                             { argName = "x",
-                                              argType = Just "Int32",
+                                              argTypeName = Just "Int32",
                                               argDefaultValue = Nothing
                                             }
                                         ],
@@ -436,12 +436,12 @@ main = hspec $ do
                               funArgs =
                                 [ FunctionArg
                                     { argName = "x",
-                                      argType = Nothing,
+                                      argTypeName = Nothing,
                                       argDefaultValue = Nothing
                                     },
                                   FunctionArg
                                     { argName = "y",
-                                      argType = Nothing,
+                                      argTypeName = Nothing,
                                       argDefaultValue = Nothing
                                     }
                                 ],

@@ -41,7 +41,7 @@ printFunction n (Function {funName = name, funArgs = args, funFreeVars = freeVar
     maybeFreeVar = maybe "" (\xs -> " forall " ++ intercalate ", " xs) freeVars
 
 printFunctionArg :: FunctionArg -> String
-printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
+printFunctionArg (FunctionArg {argName = name, argTypeName = ty, argDefaultValue = defaultValue}) =
   name ++ maybeType ++ maybeDefaultValue
   where
     maybeType = maybe "" (" : " ++) ty
