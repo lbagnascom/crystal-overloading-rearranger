@@ -12,6 +12,8 @@ library
   import: warnings
   exposed-modules:
     Parser
+    AstTypes
+    TypeResolver
     PPrint
     Rearranger
     Command.Parse
@@ -35,6 +37,8 @@ executable crystal-parser
   main-is:          Main.hs
   other-modules:
     Parser
+    AstTypes
+    TypeResolver
     PPrint
     Rearranger
     Command.Parse
