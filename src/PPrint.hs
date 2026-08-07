@@ -47,10 +47,10 @@ printFunctionArg (FunctionArg {argName = name, argTypeName = ty, argDefaultValue
     maybeDefaultValue = maybe "" ((" = " ++) . printLiteral) defaultValue
 
 printLiteral :: Literal -> String
-printLiteral (CrString s) = show s
-printLiteral (CrBool True) = "true"
-printLiteral (CrBool False) = "false"
-printLiteral (CrInt n) = show n
+printLiteral (LitString s) = show s
+printLiteral (LitBool True) = "true"
+printLiteral (LitBool False) = "false"
+printLiteral (LitInt n) = show n
 
 printUndiscovered :: Int -> String -> [String]
 printUndiscovered n s = [replicate n ' ' ++ s]

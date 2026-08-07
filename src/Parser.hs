@@ -33,16 +33,16 @@ parseLiteral :: Parser Literal
 parseLiteral = parseInteger <|> parseString <|> parseBool
 
 parseInteger :: Parser Literal
-parseInteger = CrInt <$> lexeme L.decimal
+parseInteger = LitInt <$> lexeme L.decimal
 
 parseString :: Parser Literal
-parseString = CrString <$> (char '\"' *> manyTill L.charLiteral (char '\"'))
+parseString = LitString <$> (char '\"' *> manyTill L.charLiteral (char '\"'))
 
 parseBool :: Parser Literal
 parseBool = parseTrue <|> parseFalse
   where
-    parseTrue = CrBool True <$ symbol "true"
-    parseFalse = CrBool False <$ symbol "false"
+    parseTrue = LitBool True <$ symbol "true"
+    parseFalse = LitBool False <$ symbol "false"
 
 -- Functions / Methods
 

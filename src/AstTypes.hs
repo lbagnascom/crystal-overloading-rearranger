@@ -40,7 +40,7 @@ data FunctionArg t = FunctionArg
   deriving (Show, Eq)
 
 data Literal
-  = CrBool Bool
-  | CrInt Int
-  | CrString String
+  = LitBool Bool
+  | LitInt Int
+  | LitString String
   deriving (Show, Eq)

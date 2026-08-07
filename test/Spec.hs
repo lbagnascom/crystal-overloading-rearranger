@@ -28,22 +28,22 @@ main :: IO ()
 main = hspec $ do
   describe "parseLiterals" $ do
     it "parses a literal integer" $
-      parse parseInteger "" "1435" `shouldParse` (CrInt 1435)
+      parse parseInteger "" "1435" `shouldParse` (LitInt 1435)
 
     it "fails on invalid integer" $
       parse parseInteger "" `shouldFailOn` "abcb123"
 
     it "parses a literal string" $
-      parse parseString "" "\"abcdef\"" `shouldParse` CrString "abcdef"
+      parse parseString "" "\"abcdef\"" `shouldParse` LitString "abcdef"
 
     it "fails parsing a literal string non closing" $
       parse parseString "" `shouldFailOn` "\"abcb"
 
     it "parses true boolean" $
-      parse parseBool "" "true" `shouldParse` CrBool True
+      parse parseBool "" "true" `shouldParse` LitBool True
 
     it "parses false boolean" $
-      parse parseBool "" "false" `shouldParse` CrBool False
+      parse parseBool "" "false" `shouldParse` LitBool False
 
   describe "parseFunctions" $
     let runFunctionArgParser = parse parseFunctionArg ""
@@ -78,7 +78,7 @@ main = hspec $ do
               `shouldParse` FunctionArg
                 { argName = "x",
                   argTypeName = (Just "Int32"),
-                  argDefaultValue = (Just $ CrInt 123)
+                  argDefaultValue = (Just $ LitInt 123)
                 }
 
           it "parses an argument with no type and with default value" $
@@ -86,7 +86,7 @@ main = hspec $ do
               `shouldParse` FunctionArg
                 { argName = "x",
                   argTypeName = Nothing,
-                  argDefaultValue = (Just $ CrInt 123)
+                  argDefaultValue = (Just $ LitInt 123)
                 }
 
           it "parses a function with no args" $
@@ -212,8 +212,8 @@ main = hspec $ do
                                 { funName = "foo",
                                   funArgs =
                                     [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ CrInt 1)},
-                                      FunctionArg {argName = "z", argTypeName = (Just "String"), argDefaultValue = (Just $ CrInt 34)}
+                                      FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ LitInt 1)},
+                                      FunctionArg {argName = "z", argTypeName = (Just "String"), argDefaultValue = (Just $ LitInt 34)}
                                     ],
                                   funFreeVars = Nothing,
                                   funBody = [],
@@ -309,7 +309,7 @@ main = hspec $ do
                   { funName = "foo",
                     funArgs =
                       [ FunctionArg {argName = "x", argTypeName = Nothing, argDefaultValue = Nothing},
-                        FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ CrInt 1)}
+                        FunctionArg {argName = "y", argTypeName = Nothing, argDefaultValue = (Just $ LitInt 1)}
                       ],
                     funFreeVars = Nothing,
                     funBody = ["3"],
