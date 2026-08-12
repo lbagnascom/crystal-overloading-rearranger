@@ -6,7 +6,7 @@ maintainer:         tatibagnasco@gmail.com
 build-type:         Simple
 
 common warnings
-  ghc-options: -Wall
+  ghc-options: -Wall -Wmissing-import-lists
 
 library
   import: warnings
