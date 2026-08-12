@@ -2,39 +2,51 @@ module AstTypes where
 
 type AST t = [Stmt t]
 
+-- Types
+
+data TIdentifier = TIdentifier String
+  deriving (Show, Eq)
+
 data TypeRef t = TypeRef
-  { tRefName :: String,
+  { tRefName :: TIdentifier,
     tRefType :: t
   }
   deriving (Show, Eq)
+
+-- Statements
 
 data Stmt t
   = ClassStmt (Class t)
   | ModuleStmt (Module t)
   | FunctionStmt (Function t)
-  | UndiscoveredStmt String
   deriving (Show, Eq)
 
 data Module t = Module
-  { moduleName :: String,
+  { moduleName :: TIdentifier,
     moduleMethods :: [Function t]
   }
   deriving (Show, Eq)
 
 data Class t = Class
-  { className :: String,
+  { className :: TIdentifier,
     classSuper :: TypeRef t,
     classModules :: [TypeRef t],
     classMethods :: [Function t]
   }
   deriving (Show, Eq)
 
+data FunctionName = FunctionName String
+  deriving (Show, Eq)
+
+data FunctionAnnotation = FunctionAnnotation String
+  deriving (Show, Eq)
+
 data Function t = Function
-  { funName :: String,
+  { funName :: FunctionName,
     funArgs :: [FunctionArg t],
     funFreeVars :: Maybe [String],
     funBody :: [String],
-    funAnnotation :: Maybe String
+    funAnnotation :: Maybe FunctionAnnotation
   }
   deriving (Show, Eq)
 

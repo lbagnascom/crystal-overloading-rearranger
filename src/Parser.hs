@@ -3,11 +3,41 @@
 module Parser where
 
 import AstTypes
+  ( Class (Class, classMethods, classModules, className, classSuper),
+    Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
+    FunctionAnnotation (FunctionAnnotation),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionName (FunctionName),
+    Literal (LitBool, LitInt, LitString),
+    Module (Module, moduleMethods, moduleName),
+    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    TIdentifier (TIdentifier),
+    TypeRef (TypeRef, tRefName, tRefType),
+  )
 import Data.Char (isSpace)
 import Data.Text (Text, unpack)
-import Data.Void
+import Data.Void (Void)
 import Text.Megaparsec
+  ( MonadParsec (eof),
+    Parsec,
+    anySingle,
+    between,
+    choice,
+    empty,
+    many,
+    manyTill,
+    option,
+    optional,
+    sepBy,
+    (<|>),
+  )
 import Text.Megaparsec.Char
+  ( alphaNumChar,
+    char,
+    letterChar,
+    space1,
+    upperChar,
+  )
 import qualified Text.Megaparsec.Char.Lexer as L
 import TypeResolver (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 
@@ -75,9 +105,9 @@ parseFunctionArg = do
 
 parseFunction :: Parser (Function UnresolvedType)
 parseFunction = do
-  annotation <- optional $ between (symbol "@[") (symbol "]") parseCapitalizedName
+  annotation <- optional $ between (symbol "@[") (symbol "]") (FunctionAnnotation <$> parseCapitalizedName)
   _ <- symbol "def"
-  name <- parseVarName
+  name <- FunctionName <$> parseVarName
   args <- between (symbol "(") (symbol ")") (parseFunctionArg `sepBy` symbol ",")
   freeVars <- optional $ symbol "forall" *> (parseCapitalizedName `sepBy` symbol ",")
   body <- filter (not . null) . map (dropWhile isSpace) . lines <$> manyTill anySingle (symbol "end")
@@ -97,18 +127,17 @@ parseModule = do
   _ <- symbol "module"
   name <- parseCapitalizedName
   defs <- manyTill parseFunction (symbol "end")
-  pure $ Module {moduleName = name, moduleMethods = defs}
+  pure $ Module {moduleName = TIdentifier name, moduleMethods = defs}
 
 -- Classes
 
 unrTypeRef :: String -> TypeRef UnresolvedType
-unrTypeRef n = TypeRef {tRefName = n, tRefType = ()}
-
+unrTypeRef n = TypeRef {tRefName = TIdentifier n, tRefType = ()}
 
 parseClass :: Parser (Class UnresolvedType)
 parseClass = do
   _ <- symbol "class"
-  name <- parseCapitalizedName
+  name <- TIdentifier <$> parseCapitalizedName
   super <- unrTypeRef <$> option "Reference" (symbol "<" *> parseCapitalizedName)
   includes <- many (symbol "include" *> (unrTypeRef <$> parseCapitalizedName))
   defs <- manyTill parseFunction (symbol "end")
@@ -121,8 +150,7 @@ parseStmt =
   choice
     [ ClassStmt <$> parseClass,
       ModuleStmt <$> parseModule,
-      FunctionStmt <$> parseFunction,
-      UndiscoveredStmt <$> manyTill anySingle eol
+      FunctionStmt <$> parseFunction
     ]
 
 parseProgram :: Parser UnresolvedAst

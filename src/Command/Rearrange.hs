@@ -1,5 +1,6 @@
 module Command.Rearrange (rearrange) where
 
+import AstTypes (AST)
 import Control.Monad (unless, zipWithM)
 import Data.Text (pack)
 import GHC.IO.Exception (ExitCode)
@@ -46,7 +47,7 @@ oneFile fileDir fileName = do
       saveResults outputDir outputs (outputDir </> "result.md")
       pure ()
 
-createPrograms :: [CrystalProgram] -> String -> IO [String]
+createPrograms :: [AST t] -> String -> IO [String]
 createPrograms ps dir = zipWithM createProgram [1 :: Int ..] ps
   where
     createProgram i p = do

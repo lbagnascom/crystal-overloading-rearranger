@@ -1,16 +1,23 @@
 module Rearranger where
 
 import AstTypes
+  ( AST,
+    Class (classMethods),
+    Function (funAnnotation),
+    FunctionAnnotation (FunctionAnnotation),
+    Module (moduleMethods),
+    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+  )
 import Data.Bifunctor (first)
 import Data.List (permutations)
+
 isSlot :: Function t -> Bool
-isSlot f = funAnnotation f == Just "Slot"
+isSlot f = funAnnotation f == Just (FunctionAnnotation "Slot")
 
 slots :: Stmt t -> [Function t]
 slots (ClassStmt c) = filter isSlot $ classMethods c
 slots (ModuleStmt c) = filter isSlot $ moduleMethods c
 slots (FunctionStmt f) = if isSlot f then [f] else []
-slots (UndiscoveredStmt _) = []
 
 rearrangeSlots :: AST t -> [AST t]
 rearrangeSlots cr = map (fst . replaceSlots cr) (permutations $ concatMap slots cr)
@@ -37,8 +44,6 @@ replaceSlots (s : ss) (f : fs) = case s of
       else
         let (ss2, fs2) = replaceSlots ss (f : fs)
          in (s : ss2, fs2)
-  UndiscoveredStmt _ ->
-    replaceSlots ss (f : fs)
 
 replaceFuns :: [Function t] -> [Function t] -> ([Function t], [Function t])
 replaceFuns [] fs = ([], fs)

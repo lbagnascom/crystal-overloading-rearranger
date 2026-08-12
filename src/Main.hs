@@ -1,8 +1,8 @@
 module Main (main) where
 
-import System.Environment (getArgs)
 import qualified Command.Parse as ParseCmd
 import qualified Command.Rearrange as RearrangeCmd
+import System.Environment (getArgs)
 
 main :: IO ()
 main = do

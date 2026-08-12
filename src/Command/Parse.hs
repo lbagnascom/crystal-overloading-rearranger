@@ -1,9 +1,9 @@
 module Command.Parse (parse) where
 
 import Data.Text (pack)
+import PPrint (printProgram)
 import Parser (parseProgram)
 import System.FilePath (dropExtension, takeFileName)
-import PPrint (printProgram)
 import qualified Text.Megaparsec as Megaparsec
 
 parse :: [String] -> IO ()
