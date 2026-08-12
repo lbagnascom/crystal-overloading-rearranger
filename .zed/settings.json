@@ -7,7 +7,12 @@
     "hls": {
       "initialization_options": {
         "haskell": {
-          "sessionLoading": "multipleComponents",
+          "formattingProvider": "ormolu",
+          "plugin": {
+            "hlint": {
+              "globalOn": false,
+            },
+          },
         },
       },
     },
@@ -15,6 +20,9 @@
   "languages": {
     "Crystal": {
       "format_on_save": "off",
+    },
+    "Haskell": {
+      "format_on_save": "on",
     },
   },
 }
