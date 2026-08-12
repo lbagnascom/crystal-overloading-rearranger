@@ -14,5 +14,6 @@
 
   packages = [
     pkgs.ghcid
+    pkgs.ormolu
   ];
 }
