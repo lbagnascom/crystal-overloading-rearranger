@@ -43,31 +43,32 @@ type ResolvedAst = [ResolvedStmt]
 
 type TypeRefsMap = [(String, Type)]
 
-getPlainDefs :: UnresolvedStmt -> [(String, Type)]
-getPlainDefs (ClassStmt c) = [(className c, TClass)]
-getPlainDefs (ModuleStmt m) = [(moduleName m, TModule)]
-getPlainDefs (FunctionStmt f) = [(funName f, TFunction)]
+-- getPlainDefs :: UnresolvedStmt -> [(String, Type)]
+-- getPlainDefs (ClassStmt c) = [(className c, TClass)]
+-- getPlainDefs (ModuleStmt m) = [(moduleName m, TModule)]
+-- getPlainDefs (FunctionStmt f) = [(funName f, TFunction)]
 
-resolveTypes :: UnresolvedAst -> ResolvedAst
-resolveTypes uast = map resolveStmt uast
-  where
-    typeRefs = concatMap getPlainDefs uast
+-- resolveTypes :: UnresolvedAst -> ResolvedAst
+-- resolveTypes uast = map resolveStmt uast
+--   where
+--     typeRefs = concatMap getPlainDefs uast
 
-resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
-resolveStmt trm (ClassStmt c) =
-  ClassStmt
-    ( Class
-        { className = className c,
-          classSuper = TypeRef {tRefName = className c, tRefType = TClass},
-          classModules = map resolveModule $ (\tr -> _),
-          classMethods = map resolveFunction $ (\tr -> _)
-        }
-    )
-resolveStmt trm (ModuleStmt m) = ModuleStmt _
-resolveStmt trm (FunctionStmt f) = FunctionStmt _
-
-resolveModule :: TypeRefsMap -> Module () -> Module Type
-resolveModule = _
-
-resolveFunction :: TypeRefsMap -> Function () -> Function Type
-resolveFunction = _
+-- resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
+-- resolveStmt trm (ClassStmt c) =
+--   ClassStmt
+--     ( Class
+--         { className = className c,
+--           classSuper = TypeRef {tRefName = className c, tRefType = TClass},
+--           classModules = map resolveModule $ (\tr -> _),
+--           classMethods = map resolveFunction $ (\tr -> _)
+--         }
+--     )
+-- resolveStmt trm (ModuleStmt m) = ModuleStmt _
+-- resolveStmt trm (FunctionStmt f) = FunctionStmt _
+--
+-- resolveModule :: TypeRefsMap -> Module () -> Module Type
+-- resolveModule = _
+--
+-- resolveFunction :: TypeRefsMap -> Function () -> Function Type
+-- resolveFunction = _
+--
