@@ -55,7 +55,7 @@ main = hspec $ do
             runFunctionArgParser "x : SomeType"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Just (TypeRef {tRefName = "SomeType", tRefType = ()}),
+                  argType = Just (TypeRef {tRefName = TIdentifier "SomeType", tRefType = ()}),
                   argDefaultValue = Nothing
                 }
 
@@ -63,7 +63,7 @@ main = hspec $ do
             runFunctionArgParser "x : _"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just (TypeRef {tRefName = "_", tRefType = ()})),
+                  argType = (Just (TypeRef {tRefName = TIdentifier "_", tRefType = ()})),
                   argDefaultValue = Nothing
                 }
 
@@ -71,7 +71,7 @@ main = hspec $ do
             runFunctionArgParser "x : Int32 = 123"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just (TypeRef {tRefName = "Int32", tRefType = ()})),
+                  argType = (Just (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()})),
                   argDefaultValue = (Just $ LitInt 123)
                 }
 
@@ -92,7 +92,7 @@ main = hspec $ do
               end
               |]
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs = [],
                                   funFreeVars = Nothing,
                                   funBody = ["hola lulu", "chau lulu"],
@@ -109,7 +109,7 @@ main = hspec $ do
               end
               |]
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs = [],
                                   funFreeVars = Nothing,
                                   funBody = [],
@@ -126,18 +126,18 @@ main = hspec $ do
               end
               |]
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs = [],
                                   funFreeVars = Nothing,
                                   funBody = ["1"],
-                                  funAnnotation = Just "SomeAnnotation"
+                                  funAnnotation = Just (FunctionAnnotation "SomeAnnotation")
                                 }
                             )
 
           it "parses a function with one arg" $
             runFunctionParser "def foo(x) end"
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
@@ -154,11 +154,11 @@ main = hspec $ do
           it "parses a function with multiple forall args" $
             runFunctionParser "def foo(x : T) forall T, S, R end"
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just (TypeRef {tRefName = "T", tRefType = ()})),
+                                          argType = (Just (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -171,11 +171,11 @@ main = hspec $ do
           it "parses a function with one forall arg" $
             runFunctionParser "def foo(x : T) forall T end"
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just (TypeRef {tRefName = "T", tRefType = ()})),
+                                          argType = (Just (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -188,7 +188,7 @@ main = hspec $ do
           it "parses a function with multiple args" $
             runFunctionParser "def foo(  x,   y  , z) end"
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs =
                                     [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                                       FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing},
@@ -203,13 +203,13 @@ main = hspec $ do
           it "parses a function with multiple args" $
             runFunctionParser "def foo(  x,   y=1  , z :  String =  34) end"
               `shouldParse` ( Function
-                                { funName = "foo",
+                                { funName = FunctionName "foo",
                                   funArgs =
                                     [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                                       FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ LitInt 1)},
                                       FunctionArg {
                                         argName = "z",
-                                        argType = (Just (TypeRef {tRefName = "String", tRefType = ()})),
+                                        argType = (Just (TypeRef {tRefName = TIdentifier "String", tRefType = ()})),
                                         argDefaultValue = (Just $ LitInt 34)}
                                     ],
                                   funFreeVars = Nothing,
@@ -221,7 +221,7 @@ main = hspec $ do
   describe "parseClasses" $ do
     it "parse an empty class" $
       parse parseClass "" "class A end"
-        `shouldParse` Class { className = "A", classSuper = (TypeRef {tRefName = "Reference", tRefType = ()}), classMethods = [], classModules = []}
+        `shouldParse` Class { className = TIdentifier "A", classSuper = (TypeRef {tRefName = TIdentifier "Reference", tRefType = ()}), classMethods = [], classModules = []}
 
     it "parse a class with one method" $
       parse
@@ -235,10 +235,10 @@ main = hspec $ do
         end
         |]
         `shouldParse` Class
-          { className = "A",
-            classSuper = (TypeRef {tRefName = "Reference", tRefType = ()}),
+          { className = TIdentifier "A",
+            classSuper = (TypeRef {tRefName = TIdentifier "Reference", tRefType = ()}),
             classMethods =
-              [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
+              [ Function {funName = FunctionName "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
               ],
             classModules = []
           }
@@ -255,10 +255,10 @@ main = hspec $ do
         end
         |]
         `shouldParse` Class
-          { className = "A",
-            classSuper = (TypeRef {tRefName = "Bar", tRefType = ()}),
+          { className = TIdentifier "A",
+            classSuper = (TypeRef {tRefName = TIdentifier "Bar", tRefType = ()}),
             classMethods =
-              [ Function {funName = "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
+              [ Function {funName = FunctionName "foo", funArgs = [], funFreeVars = Nothing, funBody = ["1"], funAnnotation = Nothing}
               ],
             classModules = []
           }
@@ -281,19 +281,19 @@ main = hspec $ do
         end
         |]
         `shouldParse` Class
-          { className = "A",
-            classSuper = (TypeRef {tRefName = "Reference", tRefType = ()}),
+          { className = TIdentifier "A",
+            classSuper = (TypeRef {tRefName = TIdentifier "Reference", tRefType = ()}),
             classModules = [],
             classMethods =
               [ Function
-                  { funName = "foo",
+                  { funName = FunctionName "foo",
                     funArgs = [],
                     funFreeVars = Nothing,
                     funBody = ["1"],
                     funAnnotation = Nothing
                   },
                 Function
-                  { funName = "foo",
+                  { funName = FunctionName "foo",
                     funArgs =
                       [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                         FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing}
@@ -303,7 +303,7 @@ main = hspec $ do
                     funAnnotation = Nothing
                   },
                 Function
-                  { funName = "foo",
+                  { funName = FunctionName "foo",
                     funArgs =
                       [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                         FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ LitInt 1)}
@@ -328,11 +328,11 @@ main = hspec $ do
         end
         |]
         `shouldParse` Class
-          { className = "A",
-            classSuper = (TypeRef {tRefName = "Reference", tRefType = ()}),
+          { className = TIdentifier "A",
+            classSuper = (TypeRef {tRefName = TIdentifier "Reference", tRefType = ()}),
             classMethods =
               [ Function
-                  { funName = "foo",
+                  { funName = FunctionName "foo",
                     funArgs =
                       [ (FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing})
                       ],
@@ -363,11 +363,11 @@ main = hspec $ do
         |]
         `shouldParse` [ ClassStmt $
                           Class
-                            { className = "A",
-                              classSuper = (TypeRef {tRefName = "Reference", tRefType = ()}),
+                            { className = TIdentifier "A",
+                              classSuper = (TypeRef {tRefName = TIdentifier "Reference", tRefType = ()}),
                               classMethods =
                                 [ Function
-                                    { funName = "foo",
+                                    { funName = FunctionName "foo",
                                       funArgs = [],
                                       funFreeVars = Nothing,
                                       funBody = ["1"],
@@ -378,15 +378,15 @@ main = hspec $ do
                             },
                         ClassStmt $
                           Class
-                            { className = "B",
-                              classSuper = (TypeRef {tRefName = "A", tRefType = ()}),
+                            { className = TIdentifier "B",
+                              classSuper = (TypeRef {tRefName = TIdentifier "A", tRefType = ()}),
                               classMethods =
                                 [ Function
-                                    { funName = "foo",
+                                    { funName = FunctionName "foo",
                                       funArgs =
                                         [ FunctionArg
                                             { argName = "x",
-                                              argType = Just (TypeRef {tRefName = "Int32", tRefType = ()}),
+                                              argType = Just (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()}),
                                               argDefaultValue = Nothing
                                             }
                                         ],
@@ -416,11 +416,11 @@ main = hspec $ do
         |]
         `shouldParse` [ ClassStmt $
                           Class
-                            { className = "A",
-                              classSuper = TypeRef {tRefName = "Reference", tRefType = ()},
+                            { className = TIdentifier "A",
+                              classSuper = TypeRef {tRefName = TIdentifier "Reference", tRefType = ()},
                               classMethods =
                                 [ Function
-                                    { funName = "foo",
+                                    { funName = FunctionName "foo",
                                       funArgs = [],
                                       funFreeVars = Nothing,
                                       funBody = ["1"],
@@ -431,7 +431,7 @@ main = hspec $ do
                             },
                         FunctionStmt $
                           Function
-                            { funName = "baz",
+                            { funName = FunctionName "baz",
                               funArgs =
                                 [ FunctionArg
                                     { argName = "x",
