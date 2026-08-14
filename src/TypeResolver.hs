@@ -3,8 +3,11 @@ module TypeResolver where
 import AstTypes
   ( Class (Class, classMethods, classModules, className, classSuper),
     Function (Function, funArgs, funBody, funFreeVars, funName),
+    FunctionArg (FunctionArg, argName, argType),
+    FunctionName (FunctionName),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
 
@@ -18,35 +21,40 @@ type UnresolvedAst = [UnresolvedStmt]
 
 -- Resolved
 
--- Separar restriccion de tipos
--- new alloc
--- sacar undiscoveredStmt
-
-data Type
+data Type t
   = TInt
   | TBool
   | TString
-  | TClass
-  | TFunction
-  | TModule
+  | TClass (Class t)
+  | TFunction (Function t)
+  | TModule (Module t)
   deriving (Show, Eq)
 
-data Restriction
-  = RUnderscore
-  | RType Type
+-- data TypeRestriction
+-- = TRUnderscore
+-- \| TRType Type
 
-type ResolvedStmt = Stmt Type
+data FixType = Type FixType
+
+type ResolvedStmt = Stmt FixType
 
 type ResolvedAst = [ResolvedStmt]
 
 -- Type Resolution
 
-type TypeRefsMap = [(String, Type)]
+-- TODO: use TIdentifier
+type TypeRefsMap = [(String, Type ())]
 
--- getPlainDefs :: UnresolvedStmt -> [(String, Type)]
--- getPlainDefs (ClassStmt c) = [(className c, TClass)]
--- getPlainDefs (ModuleStmt m) = [(moduleName m, TModule)]
--- getPlainDefs (FunctionStmt f) = [(funName f, TFunction)]
+fromIdentifier :: TIdentifier -> String
+fromIdentifier (TIdentifier s) = s
+
+fromFnName :: FunctionName -> String
+fromFnName (FunctionName s) = s
+
+getPlainDefs :: UnresolvedStmt -> [(String, Type ())]
+getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
+getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
+getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
 
 -- resolveTypes :: UnresolvedAst -> ResolvedAst
 -- resolveTypes uast = map resolveStmt uast
@@ -69,6 +77,28 @@ type TypeRefsMap = [(String, Type)]
 -- resolveModule :: TypeRefsMap -> Module () -> Module Type
 -- resolveModule = _
 --
--- resolveFunction :: TypeRefsMap -> Function () -> Function Type
--- resolveFunction = _
---
+resolveFunction :: TypeRefsMap -> Function () -> Function FixType
+resolveFunction trm f = f {funArgs = map (resolveArgs trm) (funArgs f)}
+
+resolveArgs :: TypeRefsMap -> FunctionArg () -> FunctionArg FixType
+resolveArgs trm fArg =
+  let fArgName = argName fArg
+
+      cType :: Maybe (TypeRef (Type ()))
+      cType = do
+        fArgType <- argType fArg
+        let refName = (tRefName fArgType)
+        refType <- lookup (fromIdentifier refName) trm
+        Just $ TypeRef {tRefName = refName, tRefType = refType}
+
+      nType :: Maybe (TypeRef FixType)
+      nType = fmap (\t -> t {tRefType = mapType (tRefType t)}) cType
+   in fArg {argType = nType}
+
+mapType :: Type () -> FixType
+mapType (TInt) = Type _
+mapType (TBool) = _
+mapType (TString) = _
+mapType (TClass c) = _
+mapType (TFunction f) = _
+mapType (TModule m) = _
