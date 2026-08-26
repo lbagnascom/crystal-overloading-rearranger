@@ -1,4 +1,6 @@
-{-# LANGUAGE NamedFieldPuns, StandaloneDeriving, UndecidableInstances #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module TypeResolver where
 
@@ -42,6 +44,7 @@ data Type t
 data Fix t = Fix (t (Fix t))
 
 deriving instance (Show (t (Fix t))) => (Show (Fix t))
+
 deriving instance (Eq (t (Fix t))) => (Eq (Fix t))
 
 type FixType = Fix Type
@@ -100,10 +103,11 @@ resolveArgs trm (FunctionArg {argName, argType, argDefaultValue}) =
       justArgType <- argType
       let refName = (tRefName justArgType)
       refType <- lookup (fromIdentifier refName) trm
-      Just $ TypeRef {
-          tRefName = refName,
-          tRefType = mapType trm refType
-        }
+      Just $
+        TypeRef
+          { tRefName = refName,
+            tRefType = mapType trm refType
+          }
 
 resolveTypeRef :: TypeRefsMap -> TypeRef () -> TypeRef FixType
 resolveTypeRef trm (TypeRef {tRefName}) =
