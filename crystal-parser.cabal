@@ -72,3 +72,5 @@ test-suite crystal-parser-test
     , hspec              ^>=2.11.17
     , hspec-megaparsec   ^>=2.2.1
     , string-interpolate ^>=0.3.4
+  build-tool-depends:
+      hspec-discover:hspec-discover ^>=2.11.17
