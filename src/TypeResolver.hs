@@ -68,7 +68,9 @@ getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
 resolveTypes :: UnresolvedAst -> ResolvedAst
 resolveTypes uast = map (resolveStmt typeRefs) uast
   where
-    typeRefs = concatMap getPlainDefs uast
+    baseTypes = [("Bool", TBool), ("String", TString)]
+                ++ [ (pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
+    typeRefs = baseTypes ++ concatMap getPlainDefs uast
 
 resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
 resolveStmt trm (ClassStmt c) = ClassStmt $ resolveClass trm c
@@ -98,7 +100,10 @@ resolveArgs trm (FunctionArg {argName, argType, argDefaultValue}) =
       justArgType <- argType
       let refName = (tRefName justArgType)
       refType <- lookup (fromIdentifier refName) trm
-      Just $ TypeRef {tRefName = refName, tRefType = mapType trm refType}
+      Just $ TypeRef {
+          tRefName = refName,
+          tRefType = mapType trm refType
+        }
 
 resolveTypeRef :: TypeRefsMap -> TypeRef () -> TypeRef FixType
 resolveTypeRef trm (TypeRef {tRefName}) =
