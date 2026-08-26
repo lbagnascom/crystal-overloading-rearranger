@@ -14,9 +14,11 @@ import Parser
     parseProgram,
     parseString,
   )
-import Test.Hspec (describe, hspec, it)
+import Test.Hspec (describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
+import Data.Either (fromRight)
+import TypeResolver (resolveTypes, ResolvedAst, UnresolvedAst, Type(..), Fix(..), FixType)
 
 main :: IO ()
 main = hspec $ do
@@ -449,3 +451,36 @@ main = hspec $ do
                               funAnnotation = Nothing
                             }
                       ]
+  describe "typeResolver" $
+    let
+      algunAst :: UnresolvedAst
+      algunAst = fromRight [] $ parse
+            parseProgram
+            ""
+            [__i|
+            def foo(x : Bool)
+              1
+            end
+            |]
+
+      supuestoRes :: ResolvedAst
+      supuestoRes = [
+        FunctionStmt (
+          Function {
+            funName = FunctionName "foo",
+            funArgs = [
+              FunctionArg {
+               argName = "x",
+               argType = Just (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
+               argDefaultValue = Nothing
+              }
+            ],
+            funFreeVars = Nothing,
+            funBody = ["1"],
+            funAnnotation = Nothing
+          }
+        )
+        ]
+    in do
+      it "probando type resolver" $
+         resolveTypes algunAst `shouldBe` supuestoRes
