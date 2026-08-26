@@ -34,6 +34,7 @@ data Type t
   | TModule (Module t)
   deriving (Show, Eq)
 
+-- TODO: add TypeRestrictions to FunctionArg to support TRUnderscore
 -- data TypeRestriction
 -- = TRUnderscore
 -- \| TRType Type
@@ -48,7 +49,6 @@ type ResolvedAst = [ResolvedStmt]
 
 -- Type Resolution
 
--- TODO: use TIdentifier
 type TypeRefsMap = [(String, Type ())]
 
 fromIdentifier :: TIdentifier -> String
@@ -116,9 +116,9 @@ resolveClass trm (Class {className, classSuper, classModules, classMethods}) =
     }
 
 mapType :: TypeRefsMap -> Type () -> FixType
-mapType _ (TInt) = Fix TInt
-mapType _ (TBool) = Fix TBool
-mapType _ (TString) = Fix TString
+mapType _ TInt = Fix TInt
+mapType _ TBool = Fix TBool
+mapType _ TString = Fix TString
 mapType trm (TClass c) = Fix $ TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
