@@ -1,15 +1,19 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module TypeResolver where
 
 import AstTypes
   ( Class (Class, classMethods, classModules, className, classSuper),
     Function (Function, funArgs, funBody, funFreeVars, funName),
-    FunctionArg (FunctionArg, argName, argType),
+    FunctionAnnotation (FunctionAnnotation),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
     FunctionName (FunctionName),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
+import Data.Maybe (fromJust)
 
 -- Unresolved
 
@@ -34,7 +38,9 @@ data Type t
 -- = TRUnderscore
 -- \| TRType Type
 
-data FixType = Type FixType
+data Fix t = Fix (t (Fix t))
+
+type FixType = Fix Type
 
 type ResolvedStmt = Stmt FixType
 
@@ -56,49 +62,72 @@ getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
 getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
 getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
 
--- resolveTypes :: UnresolvedAst -> ResolvedAst
--- resolveTypes uast = map resolveStmt uast
---   where
---     typeRefs = concatMap getPlainDefs uast
+resolveTypes :: UnresolvedAst -> ResolvedAst
+resolveTypes uast = map (resolveStmt typeRefs) uast
+  where
+    typeRefs = concatMap getPlainDefs uast
 
--- resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
--- resolveStmt trm (ClassStmt c) =
---   ClassStmt
---     ( Class
---         { className = className c,
---           classSuper = TypeRef {tRefName = className c, tRefType = TClass},
---           classModules = map resolveModule $ (\tr -> _),
---           classMethods = map resolveFunction $ (\tr -> _)
---         }
---     )
--- resolveStmt trm (ModuleStmt m) = ModuleStmt _
--- resolveStmt trm (FunctionStmt f) = FunctionStmt _
---
--- resolveModule :: TypeRefsMap -> Module () -> Module Type
--- resolveModule = _
---
+resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
+resolveStmt trm (ClassStmt c) = ClassStmt $ resolveClass trm c
+resolveStmt trm (ModuleStmt m) = ModuleStmt $ resolveModule trm m
+resolveStmt trm (FunctionStmt f) = FunctionStmt $ resolveFunction trm f
+
+resolveModule :: TypeRefsMap -> Module () -> Module FixType
+resolveModule trm (Module {moduleName, moduleMethods}) =
+  Module
+    { moduleName = moduleName,
+      moduleMethods = map (resolveFunction trm) moduleMethods
+    }
+
 resolveFunction :: TypeRefsMap -> Function () -> Function FixType
 resolveFunction trm f = f {funArgs = map (resolveArgs trm) (funArgs f)}
 
 resolveArgs :: TypeRefsMap -> FunctionArg () -> FunctionArg FixType
-resolveArgs trm fArg =
-  let fArgName = argName fArg
+resolveArgs trm (FunctionArg {argName, argType, argDefaultValue}) =
+  FunctionArg
+    { argName = argName,
+      argType = resolvedArgTypeRef,
+      argDefaultValue = argDefaultValue
+    }
+  where
+    resolvedArgTypeRef :: Maybe (TypeRef FixType)
+    resolvedArgTypeRef = do
+      justArgType <- argType
+      let refName = (tRefName justArgType)
+      refType <- lookup (fromIdentifier refName) trm
+      Just $ TypeRef {tRefName = refName, tRefType = mapType trm refType}
 
-      cType :: Maybe (TypeRef (Type ()))
-      cType = do
-        fArgType <- argType fArg
-        let refName = (tRefName fArgType)
-        refType <- lookup (fromIdentifier refName) trm
-        Just $ TypeRef {tRefName = refName, tRefType = refType}
+resolveTypeRef :: TypeRefsMap -> TypeRef () -> TypeRef FixType
+resolveTypeRef trm (TypeRef {tRefName}) =
+  let plainType :: Type ()
+      plainType = fromJust $ lookup (fromIdentifier tRefName) trm
+   in TypeRef
+        { tRefName = tRefName,
+          tRefType = mapType trm plainType
+        }
 
-      nType :: Maybe (TypeRef FixType)
-      nType = fmap (\t -> t {tRefType = mapType (tRefType t)}) cType
-   in fArg {argType = nType}
+resolveClass :: TypeRefsMap -> Class () -> Class FixType
+resolveClass trm (Class {className, classSuper, classModules, classMethods}) =
+  Class
+    { className = className,
+      classSuper = resolveTypeRef trm classSuper,
+      classModules = map (resolveTypeRef trm) classModules,
+      classMethods = map (resolveFunction trm) classMethods
+    }
 
-mapType :: Type () -> FixType
-mapType (TInt) = Type _
-mapType (TBool) = _
-mapType (TString) = _
-mapType (TClass c) = _
-mapType (TFunction f) = _
-mapType (TModule m) = _
+mapType :: TypeRefsMap -> Type () -> FixType
+mapType _ (TInt) = Fix TInt
+mapType _ (TBool) = Fix TBool
+mapType _ (TString) = Fix TString
+mapType trm (TClass c) = Fix $ TClass $ resolveClass trm c
+mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
+mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
+
+-- Lista de definiciones
+-- 0 no existe
+-- 1 no ambiguo
+-- 2 es ambiguo
+--
+-- Falta modelar el Juicio que nos dice si/no y por qué callsite cumple restricciones
+r :: ResolvedAst -> () -> [Function t]
+r = undefined
