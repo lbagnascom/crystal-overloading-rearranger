@@ -1,4 +1,4 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns, StandaloneDeriving, UndecidableInstances #-}
 
 module TypeResolver where
 
@@ -40,6 +40,9 @@ data Type t
 -- \| TRType Type
 
 data Fix t = Fix (t (Fix t))
+
+deriving instance (Show (t (Fix t))) => (Show (Fix t))
+deriving instance (Eq (t (Fix t))) => (Eq (Fix t))
 
 type FixType = Fix Type
 
