@@ -5,9 +5,21 @@
 {
   "lsp": {
     "hls": {
+      "settings": {
+        "haskell": {
+          "formattingProvider": "ormolu",
+          "checkParents": "CheckOnSave",
+          "plugin": {
+            "hlint": {
+              "globalOn": false,
+            },
+          },
+        },
+      },
       "initialization_options": {
         "haskell": {
           "formattingProvider": "ormolu",
+          "checkParents": "CheckOnSave",
           "plugin": {
             "hlint": {
               "globalOn": false,
