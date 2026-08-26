@@ -151,7 +151,10 @@ mapType :: TypeRefsMap -> Type () -> FixType
 mapType _ TInt = Fix TInt
 mapType _ TBool = Fix TBool
 mapType _ TString = Fix TString
-mapType trm (TClass c) = Fix $ TClass $ resolveClass trm c
+mapType trm (TClass c) =
+  if className c == TIdentifier "Object" -- TODO: encontrar mejor forma de cortar con la herencia infinita
+  then Fix TString
+  else Fix $ TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
 
