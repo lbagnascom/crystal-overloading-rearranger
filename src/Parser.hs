@@ -12,7 +12,7 @@ import AstTypes
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
-    Stmt (CallsiteStmt, ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
@@ -145,14 +145,6 @@ parseClass = do
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 
--- Function Invocation / Call
-
-parseCall :: Parser (Callsite UnresolvedType)
-parseCall = do
-  funname <- TIdentifier <$> parseVarName
-  args <- between (symbol "(") (symbol ")") (parseExpr `sepBy` symbol ",")
-  pure $ Callsite {callsiteFunName = funname, callsiteArgs = args}
-
 -- Expressions
 
 parseExpr :: Parser (Expr UnresolvedType)
@@ -163,9 +155,16 @@ parseExpr =
       ECall <$> parseCall
     ]
 
+parseCall :: Parser (Callsite UnresolvedType)
+parseCall = do
+  funname <- TIdentifier <$> parseVarName
+  args <- between (symbol "(") (symbol ")") (parseExpr `sepBy` symbol ",")
+  pure $ Callsite {callsiteFunName = funname, callsiteArgs = args}
+
 parseNew :: Parser (TypeRef UnresolvedType)
 parseNew = do
   name <- TIdentifier <$> parseCapitalizedName <* symbol ".new"
+  -- TODO: support constructors that take arguments
   pure $ TypeRef {tRefName = name, tRefType = ()}
 
 -- Crystal program
@@ -176,7 +175,6 @@ parseStmt =
     [ ClassStmt <$> parseClass,
       ModuleStmt <$> parseModule,
       FunctionStmt <$> parseFunction,
-      CallsiteStmt <$> parseCall,
       ExprStmt <$> parseExpr
     ]
 

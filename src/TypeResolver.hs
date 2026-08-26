@@ -11,7 +11,7 @@ import AstTypes
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
     FunctionName (FunctionName),
     Module (Module, moduleMethods, moduleName),
-    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
@@ -67,6 +67,7 @@ getPlainDefs :: UnresolvedStmt -> [(String, Type ())]
 getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
 getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
 getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
+getPlainDefs (ExprStmt e) = _
 
 referenceClass :: Class ()
 referenceClass =
@@ -92,13 +93,14 @@ resolveTypes uast = map (resolveStmt typeRefs) uast
     baseTypes =
       [("Bool", TBool), ("String", TString)]
         ++ [(pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
-        ++ [ ("Reference", TClass referenceClass), ("Object", TClass objectClass) ]
+        ++ [("Reference", TClass referenceClass), ("Object", TClass objectClass)]
     typeRefs = baseTypes ++ concatMap getPlainDefs uast
 
 resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
 resolveStmt trm (ClassStmt c) = ClassStmt $ resolveClass trm c
 resolveStmt trm (ModuleStmt m) = ModuleStmt $ resolveModule trm m
 resolveStmt trm (FunctionStmt f) = FunctionStmt $ resolveFunction trm f
+resolveStmt trm (ExprStmt e) = _
 
 resolveModule :: TypeRefsMap -> Module () -> Module FixType
 resolveModule trm (Module {moduleName, moduleMethods}) =
@@ -153,8 +155,8 @@ mapType _ TBool = Fix TBool
 mapType _ TString = Fix TString
 mapType trm (TClass c) =
   if className c == TIdentifier "Object" -- TODO: encontrar mejor forma de cortar con la herencia infinita
-  then Fix TString
-  else Fix $ TClass $ resolveClass trm c
+    then Fix TString
+    else Fix $ TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
 
