@@ -19,6 +19,8 @@ data Stmt t
   = ClassStmt (Class t)
   | ModuleStmt (Module t)
   | FunctionStmt (Function t)
+  | CallsiteStmt (Callsite t)
+  | ExprStmt (Expr t)
   deriving (Show, Eq)
 
 data Module t = Module
@@ -55,6 +57,20 @@ data FunctionArg t = FunctionArg
     argType :: Maybe (TypeRef t),
     argDefaultValue :: Maybe Literal
   }
+  deriving (Show, Eq)
+
+data Callsite t = Callsite
+  { callsiteFunName :: TIdentifier,
+    callsiteArgs :: [Expr t] -- add Exprs
+  }
+  deriving (Show, Eq)
+
+-- Expressions
+
+data Expr t
+  = ELiteral Literal
+  | ECall (Callsite t)
+  | ENew (TypeRef t)
   deriving (Show, Eq)
 
 data Literal

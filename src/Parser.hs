@@ -3,14 +3,16 @@
 module Parser where
 
 import AstTypes
-  ( Class (Class, classMethods, classModules, className, classSuper),
+  ( Callsite (Callsite, callsiteArgs, callsiteFunName),
+    Class (Class, classMethods, classModules, className, classSuper),
+    Expr (ECall, ELiteral, ENew),
     Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
     FunctionAnnotation (FunctionAnnotation),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
-    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    Stmt (CallsiteStmt, ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
@@ -143,6 +145,29 @@ parseClass = do
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 
+-- Function Invocation / Call
+
+parseCall :: Parser (Callsite UnresolvedType)
+parseCall = do
+  funname <- TIdentifier <$> parseVarName
+  args <- between (symbol "(") (symbol ")") (parseExpr `sepBy` symbol ",")
+  pure $ Callsite {callsiteFunName = funname, callsiteArgs = args}
+
+-- Expressions
+
+parseExpr :: Parser (Expr UnresolvedType)
+parseExpr =
+  choice
+    [ ELiteral <$> parseLiteral,
+      ENew <$> parseNew,
+      ECall <$> parseCall
+    ]
+
+parseNew :: Parser (TypeRef UnresolvedType)
+parseNew = do
+  name <- TIdentifier <$> parseCapitalizedName <* symbol ".new"
+  pure $ TypeRef {tRefName = name, tRefType = ()}
+
 -- Crystal program
 
 parseStmt :: Parser UnresolvedStmt
@@ -150,7 +175,9 @@ parseStmt =
   choice
     [ ClassStmt <$> parseClass,
       ModuleStmt <$> parseModule,
-      FunctionStmt <$> parseFunction
+      FunctionStmt <$> parseFunction,
+      CallsiteStmt <$> parseCall,
+      ExprStmt <$> parseExpr
     ]
 
 parseProgram :: Parser UnresolvedAst
