@@ -66,6 +66,3 @@ printLiteral (LitString s) = show s
 printLiteral (LitBool True) = "true"
 printLiteral (LitBool False) = "false"
 printLiteral (LitInt n) = show n
-
-printUndiscovered :: Int -> String -> [String]
-printUndiscovered n s = [replicate n ' ' ++ s]
