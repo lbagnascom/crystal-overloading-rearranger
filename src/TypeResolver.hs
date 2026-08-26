@@ -68,11 +68,31 @@ getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
 getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
 getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
 
+referenceClass :: Class ()
+referenceClass =
+  Class
+    { className = TIdentifier "Reference",
+      classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = ()},
+      classModules = [],
+      classMethods = []
+    }
+
+objectClass :: Class ()
+objectClass =
+  Class
+    { className = TIdentifier "Object",
+      classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = ()},
+      classModules = [],
+      classMethods = []
+    }
+
 resolveTypes :: UnresolvedAst -> ResolvedAst
 resolveTypes uast = map (resolveStmt typeRefs) uast
   where
-    baseTypes = [("Bool", TBool), ("String", TString)]
-                ++ [ (pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
+    baseTypes =
+      [("Bool", TBool), ("String", TString)]
+        ++ [(pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
+        ++ [ ("Reference", TClass referenceClass), ("Object", TClass objectClass) ]
     typeRefs = baseTypes ++ concatMap getPlainDefs uast
 
 resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
