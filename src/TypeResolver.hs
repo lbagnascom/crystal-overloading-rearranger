@@ -5,7 +5,9 @@
 module TypeResolver where
 
 import AstTypes
-  ( Class (Class, classMethods, classModules, className, classSuper),
+  ( Callsite (Callsite, callsiteArgs, callsiteFunName),
+    Class (Class, classMethods, classModules, className, classSuper),
+    Expr (ECall, ELiteral, ENew),
     Function (Function, funArgs, funBody, funFreeVars, funName),
     FunctionAnnotation (FunctionAnnotation),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
@@ -67,7 +69,7 @@ getPlainDefs :: UnresolvedStmt -> [(String, Type ())]
 getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
 getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
 getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
-getPlainDefs (ExprStmt e) = _
+getPlainDefs (ExprStmt e) = []
 
 referenceClass :: Class ()
 referenceClass =
@@ -100,7 +102,7 @@ resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
 resolveStmt trm (ClassStmt c) = ClassStmt $ resolveClass trm c
 resolveStmt trm (ModuleStmt m) = ModuleStmt $ resolveModule trm m
 resolveStmt trm (FunctionStmt f) = FunctionStmt $ resolveFunction trm f
-resolveStmt trm (ExprStmt e) = _
+resolveStmt trm (ExprStmt e) = ExprStmt $ resolveExpr trm e
 
 resolveModule :: TypeRefsMap -> Module () -> Module FixType
 resolveModule trm (Module {moduleName, moduleMethods}) =
@@ -147,6 +149,18 @@ resolveClass trm (Class {className, classSuper, classModules, classMethods}) =
       classSuper = resolveTypeRef trm classSuper,
       classModules = map (resolveTypeRef trm) classModules,
       classMethods = map (resolveFunction trm) classMethods
+    }
+
+resolveExpr :: TypeRefsMap -> Expr () -> Expr FixType
+resolveExpr _ (ELiteral l) = ELiteral l
+resolveExpr trm (ECall c) = ECall (resolveCallsite trm c)
+resolveExpr trm (ENew tr) = ENew (resolveTypeRef trm tr)
+
+resolveCallsite :: TypeRefsMap -> Callsite () -> Callsite FixType
+resolveCallsite trm (Callsite {callsiteFunName, callsiteArgs}) =
+  Callsite
+    { callsiteFunName = callsiteFunName,
+      callsiteArgs = map (resolveExpr trm) callsiteArgs
     }
 
 mapType :: TypeRefsMap -> Type () -> FixType
