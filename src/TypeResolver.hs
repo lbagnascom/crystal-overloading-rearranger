@@ -70,7 +70,7 @@ getPlainDefs :: UnresolvedStmt -> [(String, Type ())]
 getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
 getPlainDefs (ModuleStmt m) = [(fromIdentifier $ moduleName m, TModule m)]
 getPlainDefs (FunctionStmt f) = [(fromFnName $ funName f, TFunction f)]
-getPlainDefs (ExprStmt e) = []
+getPlainDefs (ExprStmt _) = []
 
 referenceClass :: Class ()
 referenceClass =

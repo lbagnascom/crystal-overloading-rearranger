@@ -6,7 +6,7 @@ import AstTypes
     Function (funAnnotation),
     FunctionAnnotation (FunctionAnnotation),
     Module (moduleMethods),
-    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
   )
 import Data.Bifunctor (first)
 import Data.List (permutations)
@@ -18,6 +18,7 @@ slots :: Stmt t -> [Function t]
 slots (ClassStmt c) = filter isSlot $ classMethods c
 slots (ModuleStmt c) = filter isSlot $ moduleMethods c
 slots (FunctionStmt f) = if isSlot f then [f] else []
+slots (ExprStmt _) = []
 
 rearrangeSlots :: AST t -> [AST t]
 rearrangeSlots cr = map (fst . replaceSlots cr) (permutations $ concatMap slots cr)
@@ -44,6 +45,8 @@ replaceSlots (s : ss) (f : fs) = case s of
       else
         let (ss2, fs2) = replaceSlots ss (f : fs)
          in (s : ss2, fs2)
+  ExprStmt _ ->
+    (s : ss, f : fs)
 
 replaceFuns :: [Function t] -> [Function t] -> ([Function t], [Function t])
 replaceFuns [] fs = ([], fs)
