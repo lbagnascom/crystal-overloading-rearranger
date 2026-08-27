@@ -1,18 +1,21 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module PPrint where
 
 import AstTypes
   ( AST,
+    Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
+    Expr (ECall, ELiteral, ENew),
     Function (Function, funArgs, funBody, funFreeVars, funName),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
-    Stmt (ClassStmt, FunctionStmt, ModuleStmt),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
-    TypeRef (tRefName),
+    TypeRef (TypeRef, tRefName),
   )
 import Data.List (intercalate)
 
@@ -23,6 +26,7 @@ printStmt :: Int -> Stmt t -> [String]
 printStmt n (ClassStmt c) = printClass n c
 printStmt n (ModuleStmt m) = printModule n m
 printStmt n (FunctionStmt def) = printFunction n def
+printStmt n (ExprStmt expr) = [printExpr n expr]
 
 printIdentifier :: TIdentifier -> String
 printIdentifier (TIdentifier s) = s
@@ -66,3 +70,15 @@ printLiteral (LitString s) = show s
 printLiteral (LitBool True) = "true"
 printLiteral (LitBool False) = "false"
 printLiteral (LitInt n) = show n
+
+printExpr :: Int -> Expr t -> String
+printExpr n (ELiteral l) = replicate n ' ' ++ printLiteral l
+printExpr n (ECall c) = replicate n ' ' ++ printCallsite c
+printExpr n (ENew (TypeRef {tRefName})) = replicate n ' ' ++ printIdentifier tRefName ++ ".new"
+
+printCallsite :: Callsite t -> String
+printCallsite (Callsite {callsiteFunName, callsiteArgs}) =
+  printIdentifier callsiteFunName
+    ++ "("
+    ++ (concatMap (printExpr 0) callsiteArgs)
+    ++ ")"
