@@ -50,13 +50,15 @@ printClass n (Class {className = name, classSuper = super, classMethods = defs, 
 
 printFunction :: Int -> Function t -> [String]
 printFunction n (Function {funName = name, funArgs = args, funFreeVars = freeVars, funBody = body}) =
-  (indentation ++ "def " ++ printFName name ++ "(" ++ intercalate ", " (map printFunctionArg args) ++ ")" ++ maybeFreeVar)
+  (indentation ++ "def " ++ printFunctionName name ++ "(" ++ intercalate ", " (map printFunctionArg args) ++ ")" ++ maybeFreeVar)
     : map (("  " ++ indentation) ++) body
     ++ [indentation ++ "end"]
   where
     indentation = replicate n ' '
     maybeFreeVar = maybe "" (\xs -> " forall " ++ intercalate ", " xs) freeVars
-    printFName (FunctionName s) = s
+
+printFunctionName :: FunctionName -> String
+printFunctionName (FunctionName s) = s
 
 printFunctionArg :: FunctionArg t -> String
 printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
@@ -78,7 +80,7 @@ printExpr n (ENew (TypeRef {tRefName})) = replicate n ' ' ++ printIdentifier tRe
 
 printCallsite :: Callsite t -> String
 printCallsite (Callsite {callsiteFunName, callsiteArgs}) =
-  printIdentifier callsiteFunName
+  printFunctionName callsiteFunName
     ++ "("
     ++ (concatMap (printExpr 0) callsiteArgs)
     ++ ")"

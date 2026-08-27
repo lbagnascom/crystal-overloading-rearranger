@@ -157,7 +157,7 @@ parseExpr =
 
 parseCall :: Parser (Callsite UnresolvedType)
 parseCall = do
-  funname <- TIdentifier <$> parseVarName
+  funname <- FunctionName <$> parseVarName
   args <- between (symbol "(") (symbol ")") (parseExpr `sepBy` symbol ",")
   pure $ Callsite {callsiteFunName = funname, callsiteArgs = args}
 

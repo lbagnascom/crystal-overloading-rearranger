@@ -67,7 +67,7 @@ data Expr t
   deriving (Show, Eq)
 
 data Callsite t = Callsite
-  { callsiteFunName :: TIdentifier,
+  { callsiteFunName :: FunctionName,
     callsiteArgs :: [Expr t]
   }
   deriving (Show, Eq)
