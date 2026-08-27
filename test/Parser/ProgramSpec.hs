@@ -10,7 +10,7 @@ import Parser (parseClass, parseProgram)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveTypes)
+import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
 
 spec :: Spec
 spec = do
@@ -199,9 +199,9 @@ spec = do
           ]
      in do
           it "probando type resolver" $
-            resolveTypes algunAst `shouldBe` supuestoRes
+            resolveAst algunAst `shouldBe` supuestoRes
           it "funciona para clases y modulos" $
-            resolveTypes otroAst
+            resolveAst otroAst
               `shouldBe` [ ModuleStmt
                              ( Module
                                  { moduleName = TIdentifier "M",

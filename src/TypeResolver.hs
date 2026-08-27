@@ -89,8 +89,8 @@ objectClass =
       classMethods = []
     }
 
-resolveTypes :: UnresolvedAst -> ResolvedAst
-resolveTypes uast = map (resolveStmt typeRefs) uast
+resolveAst :: UnresolvedAst -> ResolvedAst
+resolveAst uast = map (resolveStmt typeRefs) uast
   where
     baseTypes =
       [("Bool", TBool), ("String", TString)]
