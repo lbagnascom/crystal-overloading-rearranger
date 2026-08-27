@@ -207,15 +207,16 @@ argsMatch exprs fargs =
     fromFix (Fix t) = t
 
     simpleMatch :: Expr FixType -> FunctionArg FixType -> Bool
-    simpleMatch expr (FunctionArg {argType}) =
-      case argType of
-        Nothing -> True
-        Just tr ->
-          case (expr, fromFix $ tRefType tr) of
-            (ELiteral (LitInt _), TInt) -> True
-            (ELiteral (LitBool _), TBool) -> True
-            (ELiteral (LitString _), TString) -> True
-            -- TODO: add subtyping
-            (ENew (TypeRef {tRefType}), TClass c) -> tRefType == (Fix (TClass c))
-            (ECall _, _) -> error "Won't be using calls as expressions yet"
-            _ -> False
+    simpleMatch _ (FunctionArg {argType = Nothing}) = True
+    simpleMatch expr (FunctionArg {argType = Just tr}) =
+      case (expr, fromFix $ tRefType tr) of
+        (ELiteral (LitInt _), TInt) -> True
+        (ELiteral (LitBool _), TBool) -> True
+        (ELiteral (LitString _), TString) -> True
+        (ENew (TypeRef {tRefType = Fix (TClass c1)}), TClass c2) -> c1 `isSubclassOf` c2
+        (ECall _, _) -> error "Won't be using calls as expressions yet"
+        _ -> False
+
+-- TODO: add subtyping
+isSubclassOf :: Class FixType -> Class FixType -> Bool
+isSubclassOf c1 c2 = c1 == c2
