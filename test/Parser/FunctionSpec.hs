@@ -3,7 +3,8 @@
 
 module Parser.FunctionSpec where
 
-import AstTypes
+import AstTypes (Function (..), FunctionAnnotation (..), FunctionArg (..), FunctionName (..), Literal (..), TIdentifier (..), TypeRef (..))
+import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser
   ( parseBool,
@@ -14,14 +15,13 @@ import Parser
     parseProgram,
     parseString,
   )
-import Test.Hspec (describe, hspec, it, shouldBe)
+import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import Data.Either (fromRight)
-import TypeResolver (resolveTypes, ResolvedAst, UnresolvedAst, Type(..), Fix(..), FixType)
+import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveTypes)
 
-main :: IO ()
-main = hspec $ do
+spec :: Spec
+spec = do
   describe "parseFunctions" $
     let runFunctionArgParser = parse parseFunctionArg ""
         runFunctionParser = parse parseFunction ""
@@ -190,10 +190,11 @@ main = hspec $ do
                                   funArgs =
                                     [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
                                       FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ LitInt 1)},
-                                      FunctionArg {
-                                        argName = "z",
-                                        argType = (Just (TypeRef {tRefName = TIdentifier "String", tRefType = ()})),
-                                        argDefaultValue = (Just $ LitInt 34)}
+                                      FunctionArg
+                                        { argName = "z",
+                                          argType = (Just (TypeRef {tRefName = TIdentifier "String", tRefType = ()})),
+                                          argDefaultValue = (Just $ LitInt 34)
+                                        }
                                     ],
                                   funFreeVars = Nothing,
                                   funBody = [],

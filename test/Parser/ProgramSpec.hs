@@ -3,25 +3,17 @@
 
 module Parser.ProgramSpec where
 
-import AstTypes
+import AstTypes (Class (..), Function (..), FunctionArg (..), FunctionName (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
+import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
-import Parser
-  ( parseBool,
-    parseClass,
-    parseFunction,
-    parseFunctionArg,
-    parseInteger,
-    parseProgram,
-    parseString,
-  )
-import Test.Hspec (describe, hspec, it, shouldBe)
+import Parser (parseClass, parseProgram)
+import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import Data.Either (fromRight)
-import TypeResolver (resolveTypes, ResolvedAst, UnresolvedAst, Type(..), Fix(..), FixType)
+import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveTypes)
 
-main :: IO ()
-main = hspec $ do
+spec :: Spec
+spec = do
   describe "parsePrograms" $ do
     it "parse a simple program" $
       parse
@@ -157,22 +149,25 @@ main = hspec $ do
                             }
                       ]
   describe "typeResolver" $
-    let
-      algunAst :: UnresolvedAst
-      algunAst = fromRight [] $ parse
-            parseProgram
-            ""
-            [__i|
+    let algunAst :: UnresolvedAst
+        algunAst =
+          fromRight [] $
+            parse
+              parseProgram
+              ""
+              [__i|
             def foo(x : Bool)
               1
             end
             |]
 
-      otroAst :: UnresolvedAst
-      otroAst =  fromRight [] $ parse
-            parseProgram
-            ""
-            [__i|
+        otroAst :: UnresolvedAst
+        otroAst =
+          fromRight [] $
+            parse
+              parseProgram
+              ""
+              [__i|
             module M
             end
 
@@ -184,42 +179,49 @@ main = hspec $ do
             end
             |]
 
-      supuestoRes :: ResolvedAst
-      supuestoRes = [
-        FunctionStmt (
-          Function {
-            funName = FunctionName "foo",
-            funArgs = [
-              FunctionArg {
-               argName = "x",
-               argType = Just (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
-               argDefaultValue = Nothing
-              }
-            ],
-            funFreeVars = Nothing,
-            funBody = ["1"],
-            funAnnotation = Nothing
-          }
-        )
-        ]
-    in do
-      it "probando type resolver" $
-         resolveTypes algunAst `shouldBe` supuestoRes
-      it "funciona para clases y modulos" $
-         resolveTypes otroAst `shouldBe` [
-           ModuleStmt (
-             Module {
-               moduleName = TIdentifier "M",
-               moduleMethods = []}),
-           ClassStmt (
-             Class {
-               className = TIdentifier "A",
-               classSuper = TypeRef {tRefName = TIdentifier "Reference", tRefType = Fix (TClass (Class {className = TIdentifier "Reference", classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString}, classModules = [], classMethods = []}))},
-               classModules = [TypeRef {tRefName = TIdentifier "M", tRefType = Fix (TModule (Module {moduleName = TIdentifier "M", moduleMethods = []}))}],
-               classMethods = []}),
-           ClassStmt (
-             Class {
-               className = TIdentifier "B",
-               classSuper = TypeRef {tRefName = TIdentifier "A", tRefType = Fix (TClass (Class {className = TIdentifier "A", classSuper = TypeRef {tRefName = TIdentifier "Reference", tRefType = Fix (TClass (Class {className = TIdentifier "Reference", classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString}, classModules = [], classMethods = []}))}, classModules = [TypeRef {tRefName = TIdentifier "M", tRefType = Fix (TModule (Module {moduleName = TIdentifier "M", moduleMethods = []}))}], classMethods = []}))},
-               classModules = [],
-               classMethods = []})]
+        supuestoRes :: ResolvedAst
+        supuestoRes =
+          [ FunctionStmt
+              ( Function
+                  { funName = FunctionName "foo",
+                    funArgs =
+                      [ FunctionArg
+                          { argName = "x",
+                            argType = Just (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
+                            argDefaultValue = Nothing
+                          }
+                      ],
+                    funFreeVars = Nothing,
+                    funBody = ["1"],
+                    funAnnotation = Nothing
+                  }
+              )
+          ]
+     in do
+          it "probando type resolver" $
+            resolveTypes algunAst `shouldBe` supuestoRes
+          it "funciona para clases y modulos" $
+            resolveTypes otroAst
+              `shouldBe` [ ModuleStmt
+                             ( Module
+                                 { moduleName = TIdentifier "M",
+                                   moduleMethods = []
+                                 }
+                             ),
+                           ClassStmt
+                             ( Class
+                                 { className = TIdentifier "A",
+                                   classSuper = TypeRef {tRefName = TIdentifier "Reference", tRefType = Fix (TClass (Class {className = TIdentifier "Reference", classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString}, classModules = [], classMethods = []}))},
+                                   classModules = [TypeRef {tRefName = TIdentifier "M", tRefType = Fix (TModule (Module {moduleName = TIdentifier "M", moduleMethods = []}))}],
+                                   classMethods = []
+                                 }
+                             ),
+                           ClassStmt
+                             ( Class
+                                 { className = TIdentifier "B",
+                                   classSuper = TypeRef {tRefName = TIdentifier "A", tRefType = Fix (TClass (Class {className = TIdentifier "A", classSuper = TypeRef {tRefName = TIdentifier "Reference", tRefType = Fix (TClass (Class {className = TIdentifier "Reference", classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString}, classModules = [], classMethods = []}))}, classModules = [TypeRef {tRefName = TIdentifier "M", tRefType = Fix (TModule (Module {moduleName = TIdentifier "M", moduleMethods = []}))}], classMethods = []}))},
+                                   classModules = [],
+                                   classMethods = []
+                                 }
+                             )
+                         ]

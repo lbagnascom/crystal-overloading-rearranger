@@ -3,7 +3,8 @@
 
 module Parser.ModuleSpec where
 
-import AstTypes
+import AstTypes (Class (..), Function (..), FunctionArg (..), FunctionName (..), Literal (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
+import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser
   ( parseBool,
@@ -14,14 +15,13 @@ import Parser
     parseProgram,
     parseString,
   )
-import Test.Hspec (describe, hspec, it, shouldBe)
+import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import Data.Either (fromRight)
-import TypeResolver (resolveTypes, ResolvedAst, UnresolvedAst, Type(..), Fix(..), FixType)
+import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveTypes)
 
-main :: IO ()
-main = hspec $ do
+spec :: Spec
+spec = do
   describe "parseLiterals" $ do
     it "parses a literal integer" $
       parse parseInteger "" "1435" `shouldParse` (LitInt 1435)
