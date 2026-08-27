@@ -12,6 +12,7 @@ import AstTypes
     FunctionAnnotation (FunctionAnnotation),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
     FunctionName (FunctionName),
+    Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
@@ -180,5 +181,41 @@ mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
 -- 2 es ambiguo
 --
 -- Falta modelar el Juicio que nos dice si/no y por qué callsite cumple restricciones
-r :: ResolvedAst -> () -> [Function t]
-r = undefined
+r :: ResolvedAst -> Callsite FixType -> [Function FixType]
+r ast (Callsite {callsiteFunName, callsiteArgs}) =
+  let s1 =
+        foldr
+          ( \stmt rec ->
+              case stmt of
+                (FunctionStmt f) ->
+                  if funName f == callsiteFunName
+                    && argsMatch callsiteArgs (funArgs f)
+                    then f : rec
+                    else rec
+                _ -> rec
+          )
+          []
+          ast
+   in s1
+
+argsMatch :: [Expr FixType] -> [FunctionArg FixType] -> Bool
+argsMatch exprs fargs =
+  length exprs == length fargs
+    && and (zipWith simpleMatch exprs fargs)
+  where
+    fromFix :: FixType -> Type (Fix Type)
+    fromFix (Fix t) = t
+
+    simpleMatch :: Expr FixType -> FunctionArg FixType -> Bool
+    simpleMatch expr (FunctionArg {argType}) =
+      case argType of
+        Nothing -> True
+        Just tr ->
+          case (expr, fromFix $ tRefType tr) of
+            (ELiteral (LitInt _), TInt) -> True
+            (ELiteral (LitBool _), TBool) -> True
+            (ELiteral (LitString _), TString) -> True
+            -- TODO: add subtyping
+            (ENew (TypeRef {tRefType}), TClass c) -> tRefType == (Fix (TClass c))
+            (ECall _, _) -> error "Won't be using calls as expressions yet"
+            _ -> False
