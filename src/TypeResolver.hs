@@ -90,13 +90,15 @@ objectClass =
       classMethods = []
     }
 
+baseTypes :: TypeRefsMap
+baseTypes =
+  [("Bool", TBool), ("String", TString)]
+    ++ [(pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
+    ++ [("Reference", TClass referenceClass), ("Object", TClass objectClass)]
+
 resolveAst :: UnresolvedAst -> ResolvedAst
 resolveAst uast = map (resolveStmt typeRefs) uast
   where
-    baseTypes =
-      [("Bool", TBool), ("String", TString)]
-        ++ [(pre ++ "Int" ++ len, TInt) | pre <- ["", "U"], len <- ["8", "16", "32", "64", "128"]]
-        ++ [("Reference", TClass referenceClass), ("Object", TClass objectClass)]
     typeRefs = baseTypes ++ concatMap getPlainDefs uast
 
 resolveStmt :: TypeRefsMap -> UnresolvedStmt -> ResolvedStmt
@@ -171,7 +173,14 @@ mapType _ TString = Fix TString
 mapType trm (TClass c) =
   Fix $
     if isObject c
-      then TString
+      then
+        TClass $
+          Class
+            { className = className c,
+              classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString},
+              classModules = map (resolveTypeRef trm) (classModules c),
+              classMethods = map (resolveFunction trm) (classMethods c)
+            }
       else TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
@@ -225,4 +234,12 @@ argsMatch exprs fargs =
 
 -- TODO: add subtyping
 isSubclassOf :: Class FixType -> Class FixType -> Bool
-isSubclassOf c1 c2 = c1 == c2 || (isObject c1 && isObject c2)
+isSubclassOf c1 c2 =
+  c1 == c2
+    || (isObject c1 && isObject c2)
+    || case tRefType $ classSuper c1 of
+      Fix (TClass c3) -> c3 `isSubclassOf` c2
+      _ -> False
+
+destroyClass :: FixType -> Class FixType
+destroyClass (Fix (TClass c)) = c
