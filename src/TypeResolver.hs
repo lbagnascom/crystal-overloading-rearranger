@@ -169,11 +169,17 @@ mapType _ TInt = Fix TInt
 mapType _ TBool = Fix TBool
 mapType _ TString = Fix TString
 mapType trm (TClass c) =
-  if className c == TIdentifier "Object" -- TODO: encontrar mejor forma de cortar con la herencia infinita
-    then Fix TString
-    else Fix $ TClass $ resolveClass trm c
+  Fix $
+    if isObject c
+      then TString
+      else TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
+
+isObject :: Class t -> Bool
+isObject c = className c == TIdentifier "Object"
+
+-- TODO: encontrar mejor forma de cortar con la herencia infinita
 
 -- Lista de definiciones
 -- 0 no existe
@@ -219,4 +225,4 @@ argsMatch exprs fargs =
 
 -- TODO: add subtyping
 isSubclassOf :: Class FixType -> Class FixType -> Bool
-isSubclassOf c1 c2 = c1 == c2
+isSubclassOf c1 c2 = c1 == c2 || (isObject c1 && isObject c2)
