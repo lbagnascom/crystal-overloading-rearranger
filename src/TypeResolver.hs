@@ -213,33 +213,35 @@ r ast (Callsite {callsiteFunName, callsiteArgs}) =
           ast
    in s1
 
+fromFix :: FixType -> Type (Fix Type)
+fromFix (Fix t) = t
+
 argsMatch :: [Expr FixType] -> [FunctionArg FixType] -> Bool
 argsMatch exprs fargs =
-  length exprs == length fargs
-    && and (zipWith simpleMatch exprs fargs)
+  length exprs == length fargs && and (zipWith simpleMatch exprs fargs)
   where
-    fromFix :: FixType -> Type (Fix Type)
-    fromFix (Fix t) = t
-
     simpleMatch :: Expr FixType -> FunctionArg FixType -> Bool
     simpleMatch _ (FunctionArg {argType = Nothing}) = True
     simpleMatch expr (FunctionArg {argType = Just tr}) =
       case (expr, fromFix $ tRefType tr) of
-        (ELiteral (LitInt _), TInt) -> True
-        (ELiteral (LitBool _), TBool) -> True
-        (ELiteral (LitString _), TString) -> True
-        (ENew (TypeRef {tRefType = Fix (TClass c1)}), TClass c2) -> c1 `isSubclassOf` c2
-        (ECall _, _) -> error "Won't be using calls as expressions yet"
-        _ -> False
+        (ELiteral (LitInt _), TInt) ->
+          True
+        (ELiteral (LitBool _), TBool) ->
+          True
+        (ELiteral (LitString _), TString) ->
+          True
+        (ENew (TypeRef {tRefType = Fix (TClass c1)}), TClass c2) ->
+          c1 == c2 || c1 `isSubclassOf` c2
+        (ECall _, _) ->
+          error "Won't be using calls as expressions yet"
+        _ ->
+          False
 
--- TODO: add subtyping
+superclass :: Class FixType -> Maybe (Class FixType)
+superclass c = case tRefType $ classSuper c of
+  Fix (TClass sc) -> Just sc
+  _ -> Nothing
+
 isSubclassOf :: Class FixType -> Class FixType -> Bool
 isSubclassOf c1 c2 =
-  c1 == c2
-    || (isObject c1 && isObject c2)
-    || case tRefType $ classSuper c1 of
-      Fix (TClass c3) -> c3 `isSubclassOf` c2
-      _ -> False
-
-destroyClass :: FixType -> Class FixType
-destroyClass (Fix (TClass c)) = c
+  isObject c2 || maybe False (\sc -> sc `isSubclassOf` c2) (superclass c1)
