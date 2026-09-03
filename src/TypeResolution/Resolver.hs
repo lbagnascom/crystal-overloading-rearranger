@@ -8,7 +8,6 @@ import AstTypes
     Expr (ECall, ELiteral, ENew),
     Function (funArgs, funName),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
-    Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
@@ -17,7 +16,7 @@ import AstTypes
     fromIdentifier,
   )
 import Data.Maybe (fromJust)
-import TypeResolution.Fix (Fix (Fix), fromFix)
+import TypeResolution.Fix (Fix (Fix))
 
 -- Unresolved
 
@@ -173,55 +172,3 @@ mapType trm (TClass c) =
       else TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
-
-r :: ResolvedAst -> Callsite FixType -> [Function FixType]
-r ast (Callsite {callsiteFunName, callsiteArgs}) =
-  let s1 =
-        foldr
-          ( \stmt rec ->
-              case stmt of
-                (FunctionStmt f) ->
-                  if funName f == callsiteFunName
-                    && argsMatch callsiteArgs (funArgs f)
-                    then f : rec
-                    else rec
-                _ -> rec
-          )
-          []
-          ast
-   in s1
-
-argsMatch :: [Expr FixType] -> [FunctionArg FixType] -> Bool
-argsMatch exprs fargs =
-  length exprs == length fargs && and (zipWith simpleMatch exprs fargs)
-  where
-    simpleMatch :: Expr FixType -> FunctionArg FixType -> Bool
-    simpleMatch _ (FunctionArg {argType = Nothing}) = True
-    simpleMatch expr (FunctionArg {argType = Just tr}) =
-      case (expr, fromFix $ tRefType tr) of
-        (ELiteral (LitInt _), TInt) ->
-          True
-        (ELiteral (LitBool _), TBool) ->
-          True
-        (ELiteral (LitString _), TString) ->
-          True
-        (ENew (TypeRef {tRefType = Fix (TClass c1)}), TClass c2) ->
-          c1 == c2 || c1 `isSubclassOf` c2
-        (ECall _, _) ->
-          error "Won't be using calls as expressions yet"
-        _ ->
-          False
-
-destroyClass :: FixType -> Class FixType
-destroyClass (Fix (TClass c)) = c
-destroyClass _ = error "Expecting a TClass"
-
-superclass :: Class FixType -> Class FixType
-superclass c = case tRefType $ classSuper c of
-  Fix (TClass sc) -> sc
-  _ -> error "Superclass of every class should be a TClass"
-
-isSubclassOf :: Class FixType -> Class FixType -> Bool
-isSubclassOf c1 c2 =
-  let sc = superclass c1
-   in sc == c2 || sc `isSubclassOf` c2

@@ -18,6 +18,11 @@ import AstTypes
   )
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
+import OverloadingResolution.Detector
+  ( destroyClass,
+    isSubclassOf,
+    matchingCallsite,
+  )
 import Parser
   ( parseBool,
     parseClass,
@@ -37,11 +42,8 @@ import TypeResolution.Resolver
     Type (..),
     UnresolvedAst,
     baseTypes,
-    destroyClass,
-    isSubclassOf,
     mapType,
     objectClass,
-    r,
     referenceClass,
     resolveAst,
   )
@@ -157,7 +159,7 @@ spec = do
                          )
                      ]
       it "probando type resolver dado un callsite facil" $
-        r
+        matchingCallsite
           (resolveAst simpleFooOverloading)
           ( Callsite
               { callsiteFunName = FunctionName "foo",
