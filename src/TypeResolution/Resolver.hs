@@ -159,7 +159,7 @@ mapType _ TBool = Fix TBool
 mapType _ TString = Fix TString
 mapType trm (TClass c) =
   Fix $
-    if isObject c
+    if className c == TIdentifier "Object"
       then
         let obj =
               TClass $
@@ -173,9 +173,6 @@ mapType trm (TClass c) =
       else TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
-
-isObject :: Class t -> Bool
-isObject c = className c == TIdentifier "Object"
 
 r :: ResolvedAst -> Callsite FixType -> [Function FixType]
 r ast (Callsite {callsiteFunName, callsiteArgs}) =
