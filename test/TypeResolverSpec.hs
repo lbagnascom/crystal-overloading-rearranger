@@ -126,6 +126,18 @@ classB =
 
 spec :: Spec
 spec = do
+  describe "Clases" $
+    do
+      it "Object es su propia superclase" $
+        resolvedObjectClass `shouldSatisfy` (resolvedObjectClass `isSubclassOf`)
+      it "Object es super de Reference" $
+        resolvedObjectClass `shouldSatisfy` (resolvedReferenceClass `isSubclassOf`)
+      it "Object es super de cualquier clase" $
+        resolvedObjectClass `shouldSatisfy` (classA `isSubclassOf`)
+      it "Reference es super si no se especifica" $
+        resolvedReferenceClass `shouldSatisfy` (classA `isSubclassOf`)
+      it "B es subclase de A" $
+        classB `shouldSatisfy` (`isSubclassOf` classA)
   describe "typeResolver" $
     do
       it "probando type resolver" $
@@ -172,13 +184,3 @@ spec = do
                      ]
       it "funciona para clases y modulos" $
         resolveAst moduleAndClassHierarchy `shouldBe` [ModuleStmt emptyModuleM, ClassStmt classA, ClassStmt classB]
-      it "Object es su propia superclase" $
-        resolvedObjectClass `shouldSatisfy` (resolvedObjectClass `isSubclassOf`)
-      it "Object es super de Reference" $
-        resolvedObjectClass `shouldSatisfy` (resolvedReferenceClass `isSubclassOf`)
-      it "Object es super de cualquier clase" $
-        resolvedObjectClass `shouldSatisfy` (classA `isSubclassOf`)
-      it "Reference es super si no se especifica" $
-        resolvedReferenceClass `shouldSatisfy` (classA `isSubclassOf`)
-      it "B es subclase de A" $
-        classB `shouldSatisfy` (`isSubclassOf` classA)
