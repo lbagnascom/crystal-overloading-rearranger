@@ -41,7 +41,7 @@ import Text.Megaparsec.Char
     upperChar,
   )
 import qualified Text.Megaparsec.Char.Lexer as L
-import TypeResolver (UnresolvedAst, UnresolvedStmt, UnresolvedType)
+import TypeResolution.Resolver (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 
 type Parser = Parsec Void Text
 

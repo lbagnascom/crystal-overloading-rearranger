@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module TypeResolverSpec where
+module TypeResolution.ResolverSpec where
 
 import AstTypes
   ( Callsite (..),
@@ -30,9 +30,9 @@ import Parser
 import Test.Hspec (Spec, describe, hspec, it, shouldBe, shouldSatisfy)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolver
-  ( Fix (..),
-    FixType,
+import TypeResolution.Fix (Fix (..))
+import TypeResolution.Resolver
+  ( FixType,
     ResolvedAst,
     Type (..),
     UnresolvedAst,

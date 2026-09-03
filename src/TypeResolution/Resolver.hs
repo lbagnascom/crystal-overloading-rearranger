@@ -1,8 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
 
-module TypeResolver where
+module TypeResolution.Resolver where
 
 import AstTypes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
@@ -19,6 +17,7 @@ import AstTypes
     TypeRef (TypeRef, tRefName, tRefType),
   )
 import Data.Maybe (fromJust)
+import TypeResolution.Fix (Fix (..), fromFix)
 
 -- Unresolved
 
@@ -43,12 +42,6 @@ data Type t
 -- data TypeRestriction
 -- = TRUnderscore
 -- \| TRType Type
-
-data Fix t = Fix (t (Fix t))
-
-deriving instance (Show (t (Fix t))) => (Show (Fix t))
-
-deriving instance (Eq (t (Fix t))) => (Eq (Fix t))
 
 type FixType = Fix Type
 
@@ -128,7 +121,7 @@ resolveArgs trm (FunctionArg {argName, argType, argDefaultValue}) =
     resolvedArgTypeRef :: Maybe (TypeRef FixType)
     resolvedArgTypeRef = do
       justArgType <- argType
-      let refName = (tRefName justArgType)
+      let refName = tRefName justArgType
       refType <- lookup (fromIdentifier refName) trm
       Just $
         TypeRef
@@ -210,9 +203,6 @@ r ast (Callsite {callsiteFunName, callsiteArgs}) =
           []
           ast
    in s1
-
-fromFix :: FixType -> Type (Fix Type)
-fromFix (Fix t) = t
 
 argsMatch :: [Expr FixType] -> [FunctionArg FixType] -> Bool
 argsMatch exprs fargs =

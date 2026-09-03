@@ -4,7 +4,7 @@ type AST t = [Stmt t]
 
 -- Types
 
-data TIdentifier = TIdentifier String
+newtype TIdentifier = TIdentifier String
   deriving (Show, Eq)
 
 data TypeRef t = TypeRef

@@ -10,7 +10,7 @@ import Parser (parseClass, parseProgram)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolver (Fix (..), FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
+import TypeResolution.Resolver (FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
 
 spec :: Spec
 spec = do
