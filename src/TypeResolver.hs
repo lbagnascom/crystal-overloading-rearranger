@@ -188,8 +188,6 @@ mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
 isObject :: Class t -> Bool
 isObject c = className c == TIdentifier "Object"
 
--- TODO: encontrar mejor forma de cortar con la herencia infinita
-
 -- Lista de definiciones
 -- 0 no existe
 -- 1 no ambiguo
@@ -237,11 +235,12 @@ argsMatch exprs fargs =
         _ ->
           False
 
-superclass :: Class FixType -> Maybe (Class FixType)
+superclass :: Class FixType -> Class FixType
 superclass c = case tRefType $ classSuper c of
-  Fix (TClass sc) -> Just sc
-  _ -> Nothing
+  Fix (TClass sc) -> sc
+  _ -> if isObject c then c else error "Superclass of every class should be a TClass"
 
 isSubclassOf :: Class FixType -> Class FixType -> Bool
 isSubclassOf c1 c2 =
-  (isObject c2) || maybe False (\sc -> sc == c2 || sc `isSubclassOf` c2) (superclass c1)
+  let sc = superclass c1
+   in sc == c2 || sc `isSubclassOf` c2
