@@ -15,5 +15,6 @@
   packages = [
     pkgs.ghcid
     pkgs.ormolu
+    pkgs.haskellPackages.cabal-gild
   ];
 }
