@@ -5,8 +5,9 @@
 # Then replace the sha256 with the output.
 {
   pkgs ? import (fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/871b9fd269ff6246794583ce4ee1031e1da71895.tar.gz";
-    sha256 = "1zn1lsafn62sz6azx6j735fh4vwwghj8cc9x91g5sx2nrg23ap9k";
+    url = "https://github.com/NixOS/nixpkgs/archive/a3116115851d68b8952a2a4221cc25a84e56b532.tar.gz
+";
+    sha256 = "0qbzjra0z5v7fwzji7j2h7g632a5zg2934v3j4555n6xnwsx9sv7";
   }) { },
 }:
 
