@@ -1,8 +1,13 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module AstTypes where
 
 type AST t = [Stmt t]
 
 -- Types
+
+fromIdentifier :: TIdentifier -> String
+fromIdentifier (TIdentifier s) = s
 
 newtype TIdentifier = TIdentifier String
   deriving (Show, Eq)
@@ -34,10 +39,24 @@ data Class t = Class
     classModules :: [TypeRef t],
     classMethods :: [Function t]
   }
-  deriving (Show, Eq)
+
+instance (Eq t) => Eq (Class t) where
+  c1 == c2 =
+    (c1.className == TIdentifier "Object") == (c2.className == TIdentifier "Object")
+      || ( c1.className == c2.className
+             && c1.classModules == c2.classModules
+             && c1.classSuper == c2.classSuper
+             && c1.classMethods == c2.classMethods
+         )
+
+instance Show (Class t) where
+  show c = fromIdentifier c.className
 
 data FunctionName = FunctionName String
   deriving (Show, Eq)
+
+fromFnName :: FunctionName -> String
+fromFnName (FunctionName s) = s
 
 data FunctionAnnotation = FunctionAnnotation String
   deriving (Show, Eq)

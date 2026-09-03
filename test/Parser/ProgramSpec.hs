@@ -1,16 +1,31 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
 module Parser.ProgramSpec where
 
-import AstTypes (Class (..), Function (..), FunctionArg (..), FunctionName (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
+import AstTypes
+  ( Class (Class, classMethods, classModules, className, classSuper),
+    Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionName (FunctionName),
+    Literal (LitBool, LitInt, LitString),
+    Module (Module, moduleMethods, moduleName),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
+    TIdentifier (TIdentifier),
+    TypeRef (TypeRef, tRefName, tRefType),
+  )
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser (parseClass, parseProgram)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolution.Resolver (FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
+import TypeResolution.Resolver
+  ( FixType,
+    ResolvedAst,
+    Type (..),
+    UnresolvedAst,
+    resolveAst,
+  )
 
 spec :: Spec
 spec = do

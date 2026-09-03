@@ -3,7 +3,9 @@
 
 module Parser.ClassSpec where
 
-import AstTypes (Class (..), Function (..), FunctionArg (..), FunctionName (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
+import AstTypes (
+  Class (..), 
+  Function (..), FunctionArg (..), FunctionName (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser

@@ -6,18 +6,18 @@ import AstTypes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ECall, ELiteral, ENew),
-    Function (Function, funArgs, funBody, funFreeVars, funName),
-    FunctionAnnotation (FunctionAnnotation),
+    Function (funArgs, funName),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
-    FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
+    fromFnName,
+    fromIdentifier,
   )
 import Data.Maybe (fromJust)
-import TypeResolution.Fix (Fix (..), fromFix)
+import TypeResolution.Fix (Fix (Fix), fromFix)
 
 -- Unresolved
 
@@ -52,12 +52,6 @@ type ResolvedAst = [ResolvedStmt]
 -- Type Resolution
 
 type TypeRefsMap = [(String, Type ())]
-
-fromIdentifier :: TIdentifier -> String
-fromIdentifier (TIdentifier s) = s
-
-fromFnName :: FunctionName -> String
-fromFnName (FunctionName s) = s
 
 getPlainDefs :: UnresolvedStmt -> [(String, Type ())]
 getPlainDefs (ClassStmt c) = [(fromIdentifier $ className c, TClass c)]
@@ -167,13 +161,15 @@ mapType trm (TClass c) =
   Fix $
     if isObject c
       then
-        TClass $
-          Class
-            { className = className c,
-              classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix TString},
-              classModules = map (resolveTypeRef trm) (classModules c),
-              classMethods = map (resolveFunction trm) (classMethods c)
-            }
+        let obj =
+              TClass $
+                Class
+                  { className = className c,
+                    classSuper = TypeRef {tRefName = TIdentifier "Object", tRefType = Fix obj},
+                    classModules = map (resolveTypeRef trm) (classModules c),
+                    classMethods = map (resolveFunction trm) (classMethods c)
+                  }
+         in obj
       else TClass $ resolveClass trm c
 mapType trm (TFunction f) = Fix $ TFunction $ resolveFunction trm f
 mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
@@ -181,12 +177,6 @@ mapType trm (TModule m) = Fix $ TModule $ resolveModule trm m
 isObject :: Class t -> Bool
 isObject c = className c == TIdentifier "Object"
 
--- Lista de definiciones
--- 0 no existe
--- 1 no ambiguo
--- 2 es ambiguo
---
--- Falta modelar el Juicio que nos dice si/no y por qué callsite cumple restricciones
 r :: ResolvedAst -> Callsite FixType -> [Function FixType]
 r ast (Callsite {callsiteFunName, callsiteArgs}) =
   let s1 =
@@ -225,10 +215,14 @@ argsMatch exprs fargs =
         _ ->
           False
 
+destroyClass :: FixType -> Class FixType
+destroyClass (Fix (TClass c)) = c
+destroyClass _ = error "Expecting a TClass"
+
 superclass :: Class FixType -> Class FixType
 superclass c = case tRefType $ classSuper c of
   Fix (TClass sc) -> sc
-  _ -> if isObject c then c else error "Superclass of every class should be a TClass"
+  _ -> error "Superclass of every class should be a TClass"
 
 isSubclassOf :: Class FixType -> Class FixType -> Bool
 isSubclassOf c1 c2 =

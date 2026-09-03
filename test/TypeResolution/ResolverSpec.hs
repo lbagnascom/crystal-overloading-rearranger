@@ -37,6 +37,7 @@ import TypeResolution.Resolver
     Type (..),
     UnresolvedAst,
     baseTypes,
+    destroyClass,
     isSubclassOf,
     mapType,
     objectClass,
@@ -90,9 +91,6 @@ moduleAndClassHierarchy =
       class B < A
       end
       |]
-
-destroyClass :: FixType -> Class FixType
-destroyClass (Fix (TClass c)) = c
 
 resolvedClass :: Class () -> Class FixType
 resolvedClass = destroyClass . mapType baseTypes . TClass
