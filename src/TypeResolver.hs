@@ -244,4 +244,4 @@ superclass c = case tRefType $ classSuper c of
 
 isSubclassOf :: Class FixType -> Class FixType -> Bool
 isSubclassOf c1 c2 =
-  isObject c2 || maybe False (\sc -> sc `isSubclassOf` c2) (superclass c1)
+  (isObject c2) || maybe False (\sc -> sc == c2 || sc `isSubclassOf` c2) (superclass c1)
