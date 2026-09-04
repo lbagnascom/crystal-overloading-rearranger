@@ -26,7 +26,7 @@ library
   hs-source-dirs: src
   default-language: Haskell2010
   build-depends:
-    base ^>=4.20.2.0,
+    base ^>=4.21.1.0,
     directory ^>=1.3.10,
     filepath ^>=1.5.5,
     hspec ^>=2.11.17,
@@ -54,7 +54,7 @@ executable crystal-parser
   hs-source-dirs: src
   default-language: Haskell2010
   build-depends:
-    base ^>=4.20.2.0,
+    base ^>=4.21.1.0,
     crystal-parser,
     directory ^>=1.3.10,
     filepath ^>=1.5.5,
@@ -78,7 +78,7 @@ test-suite crystal-parser-test
     Rearranger
 
   build-depends:
-    base ^>=4.20.2.0,
+    base ^>=4.21.1.0,
     hspec ^>=2.11.17,
     hspec-megaparsec ^>=2.2.1,
     megaparsec ^>=9.7,

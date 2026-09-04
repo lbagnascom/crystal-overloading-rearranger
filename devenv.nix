@@ -3,6 +3,7 @@
 {
   languages.haskell = {
     enable = true;
+    package = pkgs.haskell.compiler.ghc9123;
     cabal.enable = true;
     lsp.enable = true;
   };
