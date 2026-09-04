@@ -1,7 +1,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module TypeResolution.Fix where
+module AST.Fix where
 
 newtype Fix t = Fix (t (Fix t))
 

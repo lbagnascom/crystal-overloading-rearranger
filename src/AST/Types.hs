@@ -1,12 +1,12 @@
 module AST.Types where
 
+import AST.Fix (Fix)
 import AST.Nodes
   ( Class,
     Function,
     Module,
     Stmt,
   )
-import TypeResolution.Fix (Fix)
 
 data Type t
   = TInt

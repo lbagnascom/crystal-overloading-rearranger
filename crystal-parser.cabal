@@ -13,6 +13,7 @@ common warnings
 library
   import: warnings
   exposed-modules:
+    AST.Fix
     AST.Nodes
     AST.Types
     Command.Parse
@@ -21,7 +22,6 @@ library
     PPrint
     Parser
     Rearranger
-    TypeResolution.Fix
     TypeResolution.Resolver
 
   hs-source-dirs: src
@@ -42,6 +42,7 @@ executable crystal-parser
   import: warnings
   main-is: Main.hs
   other-modules:
+    AST.Fix
     AST.Nodes
     AST.Types
     Command.Parse
@@ -50,7 +51,6 @@ executable crystal-parser
     PPrint
     Parser
     Rearranger
-    TypeResolution.Fix
     TypeResolution.Resolver
 
   hs-source-dirs: src
@@ -75,13 +75,13 @@ test-suite crystal-parser-test
 
   default-language: Haskell2010
   other-modules:
+    AST.Fix
     AST.Nodes
     AST.Types
     OverloadingResolution.Detector
     PPrint
     Parser
     Rearranger
-    TypeResolution.Fix
     TypeResolution.Resolver
 
   build-depends:

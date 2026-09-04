@@ -2,6 +2,7 @@
 
 module TypeResolution.Resolver where
 
+import AST.Fix (Fix (Fix))
 import AST.Nodes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
@@ -24,7 +25,6 @@ import AST.Types
     UnresolvedStmt,
   )
 import Data.Maybe (fromJust)
-import TypeResolution.Fix (Fix (Fix))
 
 -- Type Resolution
 

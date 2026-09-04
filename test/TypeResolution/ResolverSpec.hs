@@ -3,6 +3,7 @@
 
 module TypeResolution.ResolverSpec where
 
+import AST.Fix (Fix (Fix))
 import AST.Nodes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
@@ -31,7 +32,6 @@ import OverloadingResolution.Detector
 import Parser (parseProgram)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
 import Text.Megaparsec (parse)
-import TypeResolution.Fix (Fix (Fix))
 import TypeResolution.Resolver
   ( baseTypes,
     mapType,

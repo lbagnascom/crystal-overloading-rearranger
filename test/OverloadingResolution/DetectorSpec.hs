@@ -3,6 +3,7 @@
 
 module OverloadingResolution.DetectorSpec where
 
+import AST.Fix (Fix (..))
 import AST.Nodes
   ( Callsite (..),
     Class (..),
@@ -28,7 +29,6 @@ import OverloadingResolution.Detector
 import Test.Hspec (Spec, describe, hspec, it, shouldBe, shouldSatisfy)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolution.Fix (Fix (..))
 import TypeResolution.Resolver
   ( baseTypes,
     mapType,
