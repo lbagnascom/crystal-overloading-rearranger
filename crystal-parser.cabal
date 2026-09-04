@@ -15,6 +15,9 @@ library
   exposed-modules:
     AST.Fix
     AST.Nodes
+    AST.TypeIdentifier
+    AST.TypeReference
+    AST.TypeRestriction
     AST.Types
     Command.Parse
     Command.Rearrange
@@ -44,6 +47,9 @@ executable crystal-parser
   other-modules:
     AST.Fix
     AST.Nodes
+    AST.TypeIdentifier
+    AST.TypeReference
+    AST.TypeRestriction
     AST.Types
     Command.Parse
     Command.Rearrange
@@ -77,6 +83,9 @@ test-suite crystal-parser-test
   other-modules:
     AST.Fix
     AST.Nodes
+    AST.TypeIdentifier
+    AST.TypeReference
+    AST.TypeRestriction
     AST.Types
     OverloadingResolution.Detector
     PPrint

@@ -9,9 +9,10 @@ import AST.Nodes
     FunctionArg (..),
     FunctionName (..),
     Literal (..),
-    TIdentifier (..),
-    TypeRef (..),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType))
 import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
@@ -39,7 +40,7 @@ spec = do
             runFunctionArgParser "x"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Nothing,
+                  argTypeRestriction = Nothing,
                   argDefaultValue = Nothing
                 }
 
@@ -47,7 +48,7 @@ spec = do
             runFunctionArgParser "x : SomeType"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Just (TypeRef {tRefName = TIdentifier "SomeType", tRefType = ()}),
+                  argTypeRestriction = Just $ TResType (TypeRef {tRefName = TIdentifier "SomeType", tRefType = ()}),
                   argDefaultValue = Nothing
                 }
 
@@ -55,7 +56,7 @@ spec = do
             runFunctionArgParser "x : _"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just (TypeRef {tRefName = TIdentifier "_", tRefType = ()})),
+                  argTypeRestriction = (Just $ TResType (TypeRef {tRefName = TIdentifier "_", tRefType = ()})),
                   argDefaultValue = Nothing
                 }
 
@@ -63,7 +64,7 @@ spec = do
             runFunctionArgParser "x : Int32 = 123"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = (Just (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()})),
+                  argTypeRestriction = (Just $ TResType (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()})),
                   argDefaultValue = (Just $ LitInt 123)
                 }
 
@@ -71,7 +72,7 @@ spec = do
             runFunctionArgParser "x = 123"
               `shouldParse` FunctionArg
                 { argName = "x",
-                  argType = Nothing,
+                  argTypeRestriction = Nothing,
                   argDefaultValue = (Just $ LitInt 123)
                 }
 
@@ -133,7 +134,7 @@ spec = do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = Nothing,
+                                          argTypeRestriction = Nothing,
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -150,7 +151,7 @@ spec = do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
+                                          argTypeRestriction = (Just $ TResType (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -167,7 +168,7 @@ spec = do
                                   funArgs =
                                     [ FunctionArg
                                         { argName = "x",
-                                          argType = (Just (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
+                                          argTypeRestriction = (Just $ TResType (TypeRef {tRefName = TIdentifier "T", tRefType = ()})),
                                           argDefaultValue = Nothing
                                         }
                                     ],
@@ -182,9 +183,9 @@ spec = do
               `shouldParse` ( Function
                                 { funName = FunctionName "foo",
                                   funArgs =
-                                    [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "y", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "z", argType = Nothing, argDefaultValue = Nothing}
+                                    [ FunctionArg {argName = "x", argTypeRestriction = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "y", argTypeRestriction = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "z", argTypeRestriction = Nothing, argDefaultValue = Nothing}
                                     ],
                                   funFreeVars = Nothing,
                                   funBody = [],
@@ -197,11 +198,11 @@ spec = do
               `shouldParse` ( Function
                                 { funName = FunctionName "foo",
                                   funArgs =
-                                    [ FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing},
-                                      FunctionArg {argName = "y", argType = Nothing, argDefaultValue = (Just $ LitInt 1)},
+                                    [ FunctionArg {argName = "x", argTypeRestriction = Nothing, argDefaultValue = Nothing},
+                                      FunctionArg {argName = "y", argTypeRestriction = Nothing, argDefaultValue = (Just $ LitInt 1)},
                                       FunctionArg
                                         { argName = "z",
-                                          argType = (Just (TypeRef {tRefName = TIdentifier "String", tRefType = ()})),
+                                          argTypeRestriction = (Just $ TResType (TypeRef {tRefName = TIdentifier "String", tRefType = ()})),
                                           argDefaultValue = (Just $ LitInt 34)
                                         }
                                     ],

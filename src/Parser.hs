@@ -8,14 +8,15 @@ import AST.Nodes
     Expr (ECall, ELiteral, ENew),
     Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
     FunctionAnnotation (FunctionAnnotation),
-    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argTypeRestriction),
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
-    TIdentifier (TIdentifier),
-    TypeRef (TypeRef, tRefName, tRefType),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier))
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType))
 import AST.Types (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 import Data.Char (isSpace)
 import Data.Text (Text, unpack)
@@ -96,14 +97,10 @@ parseCapitalizedName = lexeme $ do
 parseFunctionArg :: Parser (FunctionArg UnresolvedType)
 parseFunctionArg = do
   varName <- parseVarName
-  funArgType <- optional (symbol ":" *> (unrTypeRef <$> parseTypeName))
+  funArgType <- optional (symbol ":" *> (unresolvedTypeRestriction <$> parseTypeName))
   defaultValue <- optional $ symbol "=" *> parseLiteral
   pure $
-    FunctionArg
-      { argName = varName,
-        argType = funArgType,
-        argDefaultValue = defaultValue
-      }
+    FunctionArg {argName = varName, argTypeRestriction = funArgType, argDefaultValue = defaultValue}
 
 parseFunction :: Parser (Function UnresolvedType)
 parseFunction = do
@@ -133,15 +130,18 @@ parseModule = do
 
 -- Classes
 
-unrTypeRef :: String -> TypeRef UnresolvedType
-unrTypeRef n = TypeRef {tRefName = TIdentifier n, tRefType = ()}
+unresolvedTypeRef :: String -> TypeRef UnresolvedType
+unresolvedTypeRef name = TypeRef {tRefName = TIdentifier name, tRefType = ()}
+
+unresolvedTypeRestriction :: String -> TypeRestriction UnresolvedType
+unresolvedTypeRestriction = TResType . unresolvedTypeRef
 
 parseClass :: Parser (Class UnresolvedType)
 parseClass = do
   _ <- symbol "class"
   name <- TIdentifier <$> parseCapitalizedName
-  super <- unrTypeRef <$> option "Reference" (symbol "<" *> parseCapitalizedName)
-  includes <- many (symbol "include" *> (unrTypeRef <$> parseCapitalizedName))
+  super <- unresolvedTypeRef <$> option "Reference" (symbol "<" *> parseCapitalizedName)
+  includes <- many (symbol "include" *> (unresolvedTypeRef <$> parseCapitalizedName))
   defs <- manyTill parseFunction (symbol "end")
   pure $ Class {className = name, classSuper = super, classModules = includes, classMethods = defs}
 

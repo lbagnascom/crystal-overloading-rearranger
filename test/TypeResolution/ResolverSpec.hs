@@ -9,14 +9,15 @@ import AST.Nodes
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ELiteral),
     Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
-    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argTypeRestriction),
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
-    TIdentifier (TIdentifier),
-    TypeRef (TypeRef, tRefName, tRefType),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType))
 import AST.Types
   ( FixType,
     Type (TBool, TClass, TModule),
@@ -140,7 +141,7 @@ spec = do
                                funArgs =
                                  [ FunctionArg
                                      { argName = "x",
-                                       argType = Just (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
+                                       argTypeRestriction = Just $ TResType (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
                                        argDefaultValue = Nothing
                                      }
                                  ],
@@ -165,7 +166,7 @@ spec = do
                            funArgs =
                              [ FunctionArg
                                  { argName = "x",
-                                   argType = Just (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
+                                   argTypeRestriction = Just $ TResType (TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}),
                                    argDefaultValue = Nothing
                                  }
                              ],

@@ -8,11 +8,12 @@ import AST.Nodes
     Class (classSuper),
     Expr (ECall, ELiteral, ENew),
     Function (funArgs, funName),
-    FunctionArg (FunctionArg, argType),
+    FunctionArg (FunctionArg, argTypeRestriction),
     Literal (LitBool, LitInt, LitString),
     Stmt (FunctionStmt),
-    TypeRef (TypeRef, tRefType),
   )
+import AST.TypeReference (TypeRef (TypeRef, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType, TResUnderscore))
 import AST.Types
   ( FixType,
     ResolvedAst,
@@ -38,8 +39,9 @@ argsMatch exprs fargs =
   length exprs == length fargs && and (zipWith exprMatchesArg exprs fargs)
 
 exprMatchesArg :: Expr FixType -> FunctionArg FixType -> Bool
-exprMatchesArg _ (FunctionArg {argType = Nothing}) = True
-exprMatchesArg expr (FunctionArg {argType = Just tr}) =
+exprMatchesArg _ (FunctionArg {argTypeRestriction = Nothing}) = True
+exprMatchesArg _ (FunctionArg {argTypeRestriction = Just TResUnderscore}) = True
+exprMatchesArg expr (FunctionArg {argTypeRestriction = Just (TResType tr)}) =
   case (expr, fromFix $ tRefType tr) of
     (ELiteral (LitInt _), TInt) ->
       True

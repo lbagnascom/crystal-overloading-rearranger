@@ -11,9 +11,9 @@ import AST.Nodes
     Literal (..),
     Module (..),
     Stmt (..),
-    TIdentifier (..),
-    TypeRef (..),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
 import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)

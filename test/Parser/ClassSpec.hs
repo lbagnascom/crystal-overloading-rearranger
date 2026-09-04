@@ -10,9 +10,10 @@ import AST.Nodes
     FunctionName (..),
     Module (..),
     Stmt (..),
-    TIdentifier (..),
-    TypeRef (..),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType))
 import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
@@ -51,7 +52,7 @@ spec = do
               [ Function
                   { funName = FunctionName "foo",
                     funArgs =
-                      [ (FunctionArg {argName = "x", argType = Nothing, argDefaultValue = Nothing})
+                      [ (FunctionArg {argName = "x", argTypeRestriction = Nothing, argDefaultValue = Nothing})
                       ],
                     funFreeVars = Nothing,
                     funBody = ["1"],
@@ -103,7 +104,7 @@ spec = do
                                       funArgs =
                                         [ FunctionArg
                                             { argName = "x",
-                                              argType = Just (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()}),
+                                              argTypeRestriction = Just $ TResType (TypeRef {tRefName = TIdentifier "Int32", tRefType = ()}),
                                               argDefaultValue = Nothing
                                             }
                                         ],

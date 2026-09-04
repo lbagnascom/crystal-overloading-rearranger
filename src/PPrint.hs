@@ -9,14 +9,15 @@ import AST.Nodes
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ECall, ELiteral, ENew),
     Function (Function, funArgs, funBody, funFreeVars, funName),
-    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argTypeRestriction),
     FunctionName (FunctionName),
     Literal (LitBool, LitInt, LitString),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
-    TIdentifier (TIdentifier),
-    TypeRef (TypeRef, tRefName),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier))
+import AST.TypeReference (TypeRef (TypeRef, tRefName))
+import AST.TypeRestriction (TypeRestriction (TResType, TResUnderscore))
 import Data.List (intercalate)
 
 printProgram :: AST t -> String
@@ -61,11 +62,15 @@ printFunctionName :: FunctionName -> String
 printFunctionName (FunctionName s) = s
 
 printFunctionArg :: FunctionArg t -> String
-printFunctionArg (FunctionArg {argName = name, argType = ty, argDefaultValue = defaultValue}) =
+printFunctionArg (FunctionArg {argName = name, argTypeRestriction = ty, argDefaultValue = defaultValue}) =
   name ++ maybeType ++ maybeDefaultValue
   where
-    maybeType = maybe "" (\typeRef -> " : " ++ printIdentifier (tRefName typeRef)) ty
+    maybeType = maybe "" (\tyRestriction -> " : " ++ printTypeRestriction tyRestriction) ty
     maybeDefaultValue = maybe "" ((" = " ++) . printLiteral) defaultValue
+
+printTypeRestriction :: TypeRestriction t -> String
+printTypeRestriction TResUnderscore = "_"
+printTypeRestriction (TResType tRef) = printIdentifier (tRefName tRef)
 
 printLiteral :: Literal -> String
 printLiteral (LitString s) = show s

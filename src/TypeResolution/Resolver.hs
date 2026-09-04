@@ -8,14 +8,14 @@ import AST.Nodes
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ECall, ELiteral, ENew),
     Function (funArgs, funName),
-    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argTypeRestriction),
     Module (Module, moduleMethods, moduleName),
     Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
-    TIdentifier (TIdentifier),
-    TypeRef (TypeRef, tRefName, tRefType),
     fromFnName,
-    fromIdentifier,
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType, TResUnderscore))
 import AST.Types
   ( FixType,
     ResolvedAst,
@@ -82,23 +82,23 @@ resolveFunction :: TypeRefsMap -> Function () -> Function FixType
 resolveFunction trm f = f {funArgs = map (resolveArgs trm) (funArgs f)}
 
 resolveArgs :: TypeRefsMap -> FunctionArg () -> FunctionArg FixType
-resolveArgs trm (FunctionArg {argName, argType, argDefaultValue}) =
+resolveArgs trm (FunctionArg {argName, argTypeRestriction, argDefaultValue}) =
   FunctionArg
     { argName = argName,
-      argType = resolvedArgTypeRef,
+      argTypeRestriction = resolvedArgTypeRef,
       argDefaultValue = argDefaultValue
     }
   where
-    resolvedArgTypeRef :: Maybe (TypeRef FixType)
-    resolvedArgTypeRef = do
-      justArgType <- argType
-      let refName = tRefName justArgType
-      refType <- lookup (fromIdentifier refName) trm
-      Just $
-        TypeRef
-          { tRefName = refName,
-            tRefType = mapType trm refType
-          }
+    resolvedArgTypeRef :: Maybe (TypeRestriction FixType)
+    resolvedArgTypeRef = case argTypeRestriction of
+      Nothing ->
+        Nothing
+      Just TResUnderscore ->
+        Just TResUnderscore
+      Just (TResType (TypeRef {tRefName})) ->
+        do
+          refType <- lookup (fromIdentifier tRefName) trm
+          Just $ TResType $ TypeRef {tRefName = tRefName, tRefType = mapType trm refType}
 
 resolveTypeRef :: TypeRefsMap -> TypeRef () -> TypeRef FixType
 resolveTypeRef trm (TypeRef {tRefName}) =

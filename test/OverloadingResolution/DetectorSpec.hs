@@ -14,9 +14,10 @@ import AST.Nodes
     Literal (..),
     Module (..),
     Stmt (..),
-    TIdentifier (..),
-    TypeRef (..),
   )
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef (TypeRef, tRefName, tRefType))
+import AST.TypeRestriction (TypeRestriction (TResType))
 import AST.Types (FixType, ResolvedAst, Type (TBool, TString), UnresolvedAst)
 import Data.String.Interpolate (__i)
 import OverloadingResolution.Detector
@@ -39,7 +40,7 @@ stringFunctionArg :: FunctionArg FixType
 stringFunctionArg =
   FunctionArg
     { argName = "s",
-      argType = Just $ TypeRef {tRefName = TIdentifier "String", tRefType = Fix TString},
+      argTypeRestriction = Just $ TResType $ TypeRef {tRefName = TIdentifier "String", tRefType = Fix TString},
       argDefaultValue = Nothing
     }
 
@@ -47,7 +48,7 @@ booleanWithDefaultValue :: FunctionArg FixType
 booleanWithDefaultValue =
   FunctionArg
     { argName = "x",
-      argType = Nothing,
+      argTypeRestriction = Nothing,
       argDefaultValue = Just $ LitBool True
     }
 
@@ -69,8 +70,8 @@ spec = do
     argsMatch
       [ELiteral $ LitBool False]
       [ booleanWithDefaultValue
-          { argType =
-              Just $ TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}
+          { argTypeRestriction =
+              Just $ TResType $ TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}
           }
       ]
       `shouldBe` True

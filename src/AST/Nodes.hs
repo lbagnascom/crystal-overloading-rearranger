@@ -2,21 +2,11 @@
 
 module AST.Nodes where
 
+import AST.TypeIdentifier (TIdentifier (TIdentifier), fromIdentifier)
+import AST.TypeReference (TypeRef)
+import AST.TypeRestriction (TypeRestriction)
+
 type AST t = [Stmt t]
-
--- Types
-
-fromIdentifier :: TIdentifier -> String
-fromIdentifier (TIdentifier s) = s
-
-newtype TIdentifier = TIdentifier String
-  deriving (Show, Eq)
-
-data TypeRef t = TypeRef
-  { tRefName :: TIdentifier,
-    tRefType :: t
-  }
-  deriving (Show, Eq)
 
 -- Statements
 
@@ -72,7 +62,7 @@ data Function t = Function
 
 data FunctionArg t = FunctionArg
   { argName :: String,
-    argType :: Maybe (TypeRef t),
+    argTypeRestriction :: Maybe (TypeRestriction t),
     argDefaultValue :: Maybe Literal
   }
   deriving (Show, Eq)
