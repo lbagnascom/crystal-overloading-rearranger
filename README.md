@@ -4,7 +4,7 @@ A tool for analyzing overload resolution behavior in [Crystal](https://crystal-l
 
 ## Prerequisites
 
-- [GHC](https://www.haskell.org/ghc/) and [Cabal](https://www.haskell.org/cabal/) (tested with GHC 9.10 / Cabal 3.0+)
+- [GHC](https://www.haskell.org/ghc/) and [Cabal](https://www.haskell.org/cabal/) (tested with GHC 9.12.3 / Cabal 3.0+)
 - [Crystal](https://crystal-lang.org/install/) (latest)
 
 > **Optional** A [devenv](https://devenv.sh/) / Nix-based setup is included (see `devenv.nix`) and will provide all dependencies automatically.

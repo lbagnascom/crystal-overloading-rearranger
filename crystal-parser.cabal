@@ -73,9 +73,13 @@ test-suite crystal-parser-test
 
   default-language: Haskell2010
   other-modules:
+    AstTypes
+    OverloadingResolution.Detector
     PPrint
     Parser
     Rearranger
+    TypeResolution.Fix
+    TypeResolution.Resolver
 
   build-depends:
     base ^>=4.21.1.0,
