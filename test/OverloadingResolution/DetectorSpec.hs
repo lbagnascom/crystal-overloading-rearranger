@@ -3,7 +3,7 @@
 
 module OverloadingResolution.DetectorSpec where
 
-import AstTypes
+import AST.Nodes
   ( Callsite (..),
     Class (..),
     Expr (..),
@@ -16,6 +16,7 @@ import AstTypes
     TIdentifier (..),
     TypeRef (..),
   )
+import AST.Types (FixType, ResolvedAst, Type (TBool, TString), UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import OverloadingResolution.Detector
@@ -29,11 +30,7 @@ import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
 import TypeResolution.Fix (Fix (..))
 import TypeResolution.Resolver
-  ( FixType,
-    ResolvedAst,
-    Type (..),
-    UnresolvedAst,
-    baseTypes,
+  ( baseTypes,
     mapType,
     objectClass,
     referenceClass,

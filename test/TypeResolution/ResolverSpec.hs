@@ -3,18 +3,23 @@
 
 module TypeResolution.ResolverSpec where
 
-import AstTypes
-  ( Callsite (..),
-    Class (..),
-    Expr (..),
-    Function (..),
-    FunctionArg (..),
-    FunctionName (..),
-    Literal (..),
-    Module (..),
-    Stmt (..),
-    TIdentifier (..),
-    TypeRef (..),
+import AST.Nodes
+  ( Callsite (Callsite, callsiteArgs, callsiteFunName),
+    Class (Class, classMethods, classModules, className, classSuper),
+    Expr (ELiteral),
+    Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
+    FunctionArg (FunctionArg, argDefaultValue, argName, argType),
+    FunctionName (FunctionName),
+    Literal (LitBool, LitInt, LitString),
+    Module (Module, moduleMethods, moduleName),
+    Stmt (ClassStmt, ExprStmt, FunctionStmt, ModuleStmt),
+    TIdentifier (TIdentifier),
+    TypeRef (TypeRef, tRefName, tRefType),
+  )
+import AST.Types
+  ( FixType,
+    Type (TBool, TClass, TModule),
+    UnresolvedAst,
   )
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
@@ -23,25 +28,12 @@ import OverloadingResolution.Detector
     isSubclassOf,
     matchingCallsite,
   )
-import Parser
-  ( parseBool,
-    parseClass,
-    parseFunction,
-    parseFunctionArg,
-    parseInteger,
-    parseProgram,
-    parseString,
-  )
-import Test.Hspec (Spec, describe, hspec, it, shouldBe, shouldSatisfy)
-import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
+import Parser (parseProgram)
+import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
 import Text.Megaparsec (parse)
-import TypeResolution.Fix (Fix (..))
+import TypeResolution.Fix (Fix (Fix))
 import TypeResolution.Resolver
-  ( FixType,
-    ResolvedAst,
-    Type (..),
-    UnresolvedAst,
-    baseTypes,
+  ( baseTypes,
     mapType,
     objectClass,
     referenceClass,

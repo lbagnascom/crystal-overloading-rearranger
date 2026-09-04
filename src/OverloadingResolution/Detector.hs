@@ -2,7 +2,7 @@
 
 module OverloadingResolution.Detector where
 
-import AstTypes
+import AST.Nodes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (classSuper),
     Expr (ECall, ELiteral, ENew),
@@ -12,8 +12,12 @@ import AstTypes
     Stmt (FunctionStmt),
     TypeRef (TypeRef, tRefType),
   )
+import AST.Types
+  ( FixType,
+    ResolvedAst,
+    Type (TBool, TClass, TInt, TString),
+  )
 import TypeResolution.Fix (Fix (Fix), fromFix)
-import TypeResolution.Resolver (FixType, ResolvedAst, Type (TBool, TClass, TInt, TString))
 
 matchingCallsite :: ResolvedAst -> Callsite FixType -> [Function FixType]
 matchingCallsite ast (Callsite {callsiteFunName, callsiteArgs}) =

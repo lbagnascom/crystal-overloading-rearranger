@@ -2,7 +2,7 @@
 
 module Parser where
 
-import AstTypes
+import AST.Nodes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ECall, ELiteral, ENew),
@@ -16,6 +16,7 @@ import AstTypes
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
+import AST.Types (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 import Data.Char (isSpace)
 import Data.Text (Text, unpack)
 import Data.Void (Void)
@@ -41,7 +42,6 @@ import Text.Megaparsec.Char
     upperChar,
   )
 import qualified Text.Megaparsec.Char.Lexer as L
-import TypeResolution.Resolver (UnresolvedAst, UnresolvedStmt, UnresolvedType)
 
 type Parser = Parsec Void Text
 

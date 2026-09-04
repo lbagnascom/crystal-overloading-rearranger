@@ -2,7 +2,7 @@
 
 module TypeResolution.Resolver where
 
-import AstTypes
+import AST.Nodes
   ( Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),
     Expr (ECall, ELiteral, ENew),
@@ -15,38 +15,16 @@ import AstTypes
     fromFnName,
     fromIdentifier,
   )
+import AST.Types
+  ( FixType,
+    ResolvedAst,
+    ResolvedStmt,
+    Type (TBool, TClass, TFunction, TInt, TModule, TString),
+    UnresolvedAst,
+    UnresolvedStmt,
+  )
 import Data.Maybe (fromJust)
 import TypeResolution.Fix (Fix (Fix))
-
--- Unresolved
-
-type UnresolvedType = ()
-
-type UnresolvedStmt = Stmt UnresolvedType
-
-type UnresolvedAst = [UnresolvedStmt]
-
--- Resolved
-
-data Type t
-  = TInt
-  | TBool
-  | TString
-  | TClass (Class t)
-  | TFunction (Function t)
-  | TModule (Module t)
-  deriving (Show, Eq)
-
--- TODO: add TypeRestrictions to FunctionArg to support TRUnderscore
--- data TypeRestriction
--- = TRUnderscore
--- \| TRType Type
-
-type FixType = Fix Type
-
-type ResolvedStmt = Stmt FixType
-
-type ResolvedAst = [ResolvedStmt]
 
 -- Type Resolution
 

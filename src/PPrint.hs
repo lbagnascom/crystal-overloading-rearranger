@@ -3,7 +3,7 @@
 
 module PPrint where
 
-import AstTypes
+import AST.Nodes
   ( AST,
     Callsite (Callsite, callsiteArgs, callsiteFunName),
     Class (Class, classMethods, classModules, className, classSuper),

@@ -1,6 +1,6 @@
 module Rearranger where
 
-import AstTypes
+import AST.Nodes
   ( AST,
     Class (classMethods),
     Function (funAnnotation),

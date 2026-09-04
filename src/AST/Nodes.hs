@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 
-module AstTypes where
+module AST.Nodes where
 
 type AST t = [Stmt t]
 

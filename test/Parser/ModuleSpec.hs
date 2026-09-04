@@ -3,14 +3,25 @@
 
 module Parser.ModuleSpec where
 
-import AstTypes (Class (..), Function (..), FunctionArg (..), FunctionName (..), Literal (..), Module (..), Stmt (..), TIdentifier (..), TypeRef (..))
+import AST.Nodes
+  ( Class (..),
+    Function (..),
+    FunctionArg (..),
+    FunctionName (..),
+    Literal (..),
+    Module (..),
+    Stmt (..),
+    TIdentifier (..),
+    TypeRef (..),
+  )
+import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser (parseModule)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolution.Resolver (FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
+import TypeResolution.Resolver (resolveAst)
 
 spec :: Spec
 spec = do

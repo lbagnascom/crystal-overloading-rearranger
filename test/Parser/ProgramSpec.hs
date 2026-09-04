@@ -2,7 +2,7 @@
 
 module Parser.ProgramSpec where
 
-import AstTypes
+import AST.Nodes
   ( Class (Class, classMethods, classModules, className, classSuper),
     Function (Function, funAnnotation, funArgs, funBody, funFreeVars, funName),
     FunctionArg (FunctionArg, argDefaultValue, argName, argType),
@@ -13,19 +13,14 @@ import AstTypes
     TIdentifier (TIdentifier),
     TypeRef (TypeRef, tRefName, tRefType),
   )
+import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser (parseClass, parseProgram)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolution.Resolver
-  ( FixType,
-    ResolvedAst,
-    Type (..),
-    UnresolvedAst,
-    resolveAst,
-  )
+import TypeResolution.Resolver (resolveAst)
 
 spec :: Spec
 spec = do

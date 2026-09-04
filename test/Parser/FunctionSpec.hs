@@ -3,7 +3,16 @@
 
 module Parser.FunctionSpec where
 
-import AstTypes (Function (..), FunctionAnnotation (..), FunctionArg (..), FunctionName (..), Literal (..), TIdentifier (..), TypeRef (..))
+import AST.Nodes
+  ( Function (..),
+    FunctionAnnotation (..),
+    FunctionArg (..),
+    FunctionName (..),
+    Literal (..),
+    TIdentifier (..),
+    TypeRef (..),
+  )
+import AST.Types (FixType, ResolvedAst, Type, UnresolvedAst)
 import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import Parser
@@ -18,7 +27,7 @@ import Parser
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
 import Test.Hspec.Megaparsec (shouldFailOn, shouldParse)
 import Text.Megaparsec (parse)
-import TypeResolution.Resolver (FixType, ResolvedAst, Type (..), UnresolvedAst, resolveAst)
+import TypeResolution.Resolver (resolveAst)
 
 spec :: Spec
 spec = do

@@ -1,6 +1,6 @@
 module Command.Rearrange (rearrange) where
 
-import AstTypes (AST)
+import AST.Nodes (AST)
 import Control.Monad (unless, zipWithM)
 import Data.Text (pack)
 import GHC.IO.Exception (ExitCode)

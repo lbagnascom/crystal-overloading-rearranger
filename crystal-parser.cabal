@@ -13,7 +13,8 @@ common warnings
 library
   import: warnings
   exposed-modules:
-    AstTypes
+    AST.Nodes
+    AST.Types
     Command.Parse
     Command.Rearrange
     OverloadingResolution.Detector
@@ -41,7 +42,8 @@ executable crystal-parser
   import: warnings
   main-is: Main.hs
   other-modules:
-    AstTypes
+    AST.Nodes
+    AST.Types
     Command.Parse
     Command.Rearrange
     OverloadingResolution.Detector
@@ -73,7 +75,8 @@ test-suite crystal-parser-test
 
   default-language: Haskell2010
   other-modules:
-    AstTypes
+    AST.Nodes
+    AST.Types
     OverloadingResolution.Detector
     PPrint
     Parser
