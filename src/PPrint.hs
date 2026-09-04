@@ -42,7 +42,7 @@ printModule n (Module {moduleName = name, moduleMethods = defs}) =
 printClass :: Int -> Class t -> [String]
 printClass n (Class {className = name, classSuper = super, classMethods = defs, classModules = modules}) =
   (indentation ++ "class " ++ printIdentifier name ++ " < " ++ printIdentifier (tRefName super))
-    : (map (\m -> indentation ++ "  include " ++ printIdentifier (tRefName m)) modules)
+    : map (\m -> indentation ++ "  include " ++ printIdentifier (tRefName m)) modules
     ++ intercalate [""] (map (printFunction (n + 2)) defs)
     ++ [indentation ++ "end"]
   where
@@ -82,5 +82,5 @@ printCallsite :: Callsite t -> String
 printCallsite (Callsite {callsiteFunName, callsiteArgs}) =
   printFunctionName callsiteFunName
     ++ "("
-    ++ (concatMap (printExpr 0) callsiteArgs)
+    ++ concatMap (printExpr 0) callsiteArgs
     ++ ")"

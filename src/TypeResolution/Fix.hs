@@ -3,7 +3,7 @@
 
 module TypeResolution.Fix where
 
-data Fix t = Fix (t (Fix t))
+newtype Fix t = Fix (t (Fix t))
 
 deriving instance (Show (t (Fix t))) => (Show (Fix t))
 

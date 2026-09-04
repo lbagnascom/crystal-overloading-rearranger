@@ -52,13 +52,13 @@ instance (Eq t) => Eq (Class t) where
 instance Show (Class t) where
   show c = fromIdentifier c.className
 
-data FunctionName = FunctionName String
+newtype FunctionName = FunctionName String
   deriving (Show, Eq)
 
 fromFnName :: FunctionName -> String
 fromFnName (FunctionName s) = s
 
-data FunctionAnnotation = FunctionAnnotation String
+newtype FunctionAnnotation = FunctionAnnotation String
   deriving (Show, Eq)
 
 data Function t = Function

@@ -87,7 +87,7 @@ runExperiment name files opts = do
       }
 
 runFiles :: [String] -> [String] -> IO [ProcessResult]
-runFiles opts files = mapM runFile files
+runFiles opts = mapM runFile
   where
     runFile file = do
       (exitCode, out, err) <- readProcessWithExitCode "crystal" (["run", file] ++ opts) ""
@@ -106,12 +106,12 @@ saveResults sampleName exps fn = writeFile fn (unlines content)
     content = ("# Sample " ++ sampleName) : concatMap showExp exps
     showExp expr =
       let prs = expResults expr
-       in ["## Flags " ++ (show $ expCrystalOpts expr)]
+       in ["## Flags " ++ show (expCrystalOpts expr)]
             ++ exitCodes prs
             ++ stdOuts prs
             ++ stdErrs prs
             ++ conclusion prs
-    listWith prs f = map (\pr -> (dropExtension $ prFileName pr) ++ ". " ++ (show $ f pr)) prs
+    listWith prs f = map (\pr -> dropExtension (prFileName pr) ++ ". " ++ show (f pr)) prs
     exitCodes prs = "### Exit codes " : listWith prs prExitCode
     stdOuts prs = "### Stdouts " : listWith prs prStdout
     stdErrs prs = "### Stderrs " : listWith prs prStderr

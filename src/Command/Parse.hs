@@ -16,7 +16,7 @@ parse args =
       case Megaparsec.parse parseProgram fileNameWExt content of
         Left err -> do
           putStrLn "Parser failed with error:"
-          putStrLn $ show err
+          print err
         Right out -> do
           putStrLn $ "File " <> fileName <> " parsed successfully"
           putStrLn $ printProgram out
