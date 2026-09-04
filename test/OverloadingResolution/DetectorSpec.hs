@@ -21,7 +21,6 @@ import AST.Types (FixType, ResolvedAst, Type (TBool, TString), UnresolvedAst)
 import Data.String.Interpolate (__i)
 import OverloadingResolution.Detector
   ( argsMatch,
-    destroyClass,
     isSubclassOf,
     matchingCallsite,
   )
