@@ -3,7 +3,7 @@
 
 module OverloadingResolution.DetectorSpec where
 
-import AST.Fix (Fix (..))
+import AST.Fix (Fix (Fix))
 import AST.Nodes
   ( Callsite (..),
     Class (..),
@@ -18,7 +18,6 @@ import AST.Nodes
     TypeRef (..),
   )
 import AST.Types (FixType, ResolvedAst, Type (TBool, TString), UnresolvedAst)
-import Data.Either (fromRight)
 import Data.String.Interpolate (__i)
 import OverloadingResolution.Detector
   ( argsMatch,
