@@ -40,8 +40,16 @@ import TypeResolution.Resolver
     resolveAst,
   )
 
-simpleFunctionArg :: FunctionArg FixType
-simpleFunctionArg =
+stringFunctionArg :: FunctionArg FixType
+stringFunctionArg =
+  FunctionArg
+    { argName = "s",
+      argType = Just $ TypeRef _,
+      argDefaultValue = Nothing
+    }
+
+booleanWithDefaultValue :: FunctionArg FixType
+booleanWithDefaultValue =
   FunctionArg
     { argName = "x",
       argType = Nothing,
@@ -50,24 +58,34 @@ simpleFunctionArg =
 
 spec :: Spec
 spec = do
-  it "No args match" $
+  it "Zero args match with no function args" $
     argsMatch [] [] `shouldBe` True
-  it "No args match with optional value" $
+  it "Default value and no restriction allows zero args" $
     argsMatch
       []
-      [simpleFunctionArg]
+      [booleanWithDefaultValue]
       `shouldBe` True
-  it "One arg matches using default value" $
+  it "Default value and no restriction allows one arg" $
     argsMatch
       [ELiteral $ LitBool False]
-      [simpleFunctionArg {argDefaultValue = Just $ LitBool True}]
+      [booleanWithDefaultValue]
       `shouldBe` True
-  it "One arg matches using default value and type restriction" $
+  it "Default value and type restriction allows one arg" $
     argsMatch
       [ELiteral $ LitBool False]
-      [ simpleFunctionArg
-          { argType = Just $ TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool},
-            argDefaultValue = Just $ LitBool True
+      [ booleanWithDefaultValue
+          { argType =
+              Just $ TypeRef {tRefName = TIdentifier "Bool", tRefType = Fix TBool}
           }
       ]
+      `shouldBe` True
+  it "Two args don't match if some value does not type" $
+    argsMatch
+      [ELiteral $ LitBool False, ELiteral $ LitBool True]
+      [booleanWithDefaultValue, stringFunctionArg]
+      `shouldBe` False
+  it "Two args match when all values satisfy type restriction " $
+    argsMatch
+      [ELiteral $ LitBool False, ELiteral $ LitString "foo"]
+      [booleanWithDefaultValue, stringFunctionArg]
       `shouldBe` True
