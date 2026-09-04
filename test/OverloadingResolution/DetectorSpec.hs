@@ -44,7 +44,7 @@ stringFunctionArg :: FunctionArg FixType
 stringFunctionArg =
   FunctionArg
     { argName = "s",
-      argType = Just $ TypeRef _,
+      argType = Just $ TypeRef {tRefName = TIdentifier "String", tRefType = Fix TString},
       argDefaultValue = Nothing
     }
 
